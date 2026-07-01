@@ -569,17 +569,51 @@ button:focus-visible {
     align-items: start;
     display: grid;
   }
+}
 
-  .week-summary div {
-    align-items: center;
-    flex-direction: row;
+.button-link {
+  align-items: center;
+  background: #0f766e;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
+
+.button-link:hover,
+.button-link:focus-visible {
+  background: #115e59;
+}
+
+.button-link--secondary {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.button-link--secondary:hover,
+.button-link--secondary:focus-visible {
+  background: #bae6fd;
+}
+
+.resource-list__tools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__tools {
+    display: grid;
+    justify-content: stretch;
   }
 
-  .rating-cell {
-    grid-template-columns: 1fr repeat(5, minmax(1.8rem, 1fr));
-  }
-
-  .rating-button {
-    min-height: 2.25rem;
+  .button-link {
+    width: 100%;
   }
 }

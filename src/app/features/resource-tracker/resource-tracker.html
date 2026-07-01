@@ -9,76 +9,20 @@
     </p>
   </header>
 
-  <section class="resource-editor" aria-labelledby="resource-editor-title">
-    <div>
-      <p class="eyebrow">Setup</p>
-      <h2 id="resource-editor-title">{{ isEditing ? 'Edit resource' : 'Add a resource' }}</h2>
-      <p>
-        A resource has a name, a short description and custom text for each rating step.
-      </p>
-    </div>
-
-    <form class="resource-form" (ngSubmit)="saveResource()">
-      <label>
-        Resource name
-        <input
-          name="resource-name"
-          type="text"
-          [ngModel]="draft().name"
-          (ngModelChange)="updateDraftName($event)"
-          placeholder="e.g. Sleep"
-          required
-        />
-      </label>
-
-      <label>
-        Description
-        <textarea
-          name="resource-description"
-          rows="3"
-          [ngModel]="draft().description"
-          (ngModelChange)="updateDraftDescription($event)"
-          placeholder="What does this resource measure?"
-          required
-        ></textarea>
-      </label>
-
-      <div class="rating-descriptions" aria-label="Rating descriptions">
-        @for (rating of ratingScale; track rating) {
-          <label>
-            Rating {{ rating }} description
-            <input
-              [name]="'rating-description-' + rating"
-              type="text"
-              [ngModel]="draft().ratingDescriptions[rating - 1]"
-              (ngModelChange)="updateDraftRatingDescription(rating - 1, $event)"
-              [placeholder]="rating === 1 ? 'Weakest level' : rating === 5 ? 'Best level' : 'Describe this level'"
-              required
-            />
-          </label>
-        }
-      </div>
-
-      <div class="form-actions">
-        <button type="submit">{{ isEditing ? 'Save changes' : 'Add resource' }}</button>
-        @if (isEditing) {
-          <button type="button" class="button-secondary" (click)="resetDraft()">Cancel</button>
-        }
-      </div>
-    </form>
-  </section>
-
   <section class="resource-list" aria-labelledby="resource-list-title">
     <div class="resource-list__header">
       <div>
         <p class="eyebrow">Manage</p>
         <h2 id="resource-list-title">Tracked resources</h2>
       </div>
-      <span>{{ resources().length }} {{ resources().length === 1 ? 'resource' : 'resources' }}</span>
+      <div class="resource-list__tools">
+        <span>{{ resources().length }} {{ resources().length === 1 ? 'resource' : 'resources' }}</span>
+        <a routerLink="/resources/new" class="button-link">Add New</a>
+      </div>
     </div>
 
     @if (resources().length === 0) {
-      <p class="empty-state">Add your first resource with the form above. Each resource will appear here for editing or removal.</p>
+      <p class="empty-state">Add your first resource to show it here for editing or removal.</p>
     } @else {
       <div class="resource-cards">
         @for (resource of resources(); track resource.id) {
@@ -89,7 +33,7 @@
                 <p>{{ resource.description }}</p>
               </div>
               <div class="resource-card__actions" aria-label="Resource actions">
-                <button type="button" class="button-secondary" (click)="editResource(resource)">Edit</button>
+                <a [routerLink]="['/resources', resource.id, 'edit']" class="button-link button-link--secondary">Edit</a>
                 <button type="button" class="button-danger" (click)="removeResource(resource.id)">Remove</button>
               </div>
             </div>
