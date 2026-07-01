@@ -1,0 +1,45 @@
+.placeholder {
+  align-content: center;
+  display: grid;
+  min-height: 100dvh;
+  padding: 2rem;
+}
+
+.placeholder > * {
+  max-width: 44rem;
+}
+
+.back-link {
+  color: #0f766e;
+  font-weight: 800;
+  margin-bottom: 3rem;
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  text-decoration: underline;
+}
+
+.eyebrow {
+  color: #0f766e;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  color: #0f172a;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 0.95;
+  margin: 0 0 1.5rem;
+}
+
+p {
+  color: #475569;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  margin: 0;
+}
