@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceTracker {
-  protected readonly title = 'Ressourcen Tracker';
-  protected readonly description = 'Platzhalterseite für den späteren Ressourcen Tracker.';
+  protected readonly title = 'Resources';
+  protected readonly description = 'Der Ressourcen Tracker ist als Navigationsziel vorbereitet.';
+  protected readonly comingSoon =
+    'Hier entsteht eine Übersicht für Ressourcen, Kapazitäten, Verantwortlichkeiten und Statusinformationen.';
 }

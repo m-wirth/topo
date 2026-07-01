@@ -1,7 +1,14 @@
-.hero {
+.splash {
+  align-items: end;
+  display: grid;
+  min-height: 48dvh;
+  padding: 2rem 1.5rem;
+}
+
+.splash__content {
   margin: 0 auto;
   max-width: 72rem;
-  padding: 5rem 1.5rem 2rem;
+  width: 100%;
 }
 
 .eyebrow {
@@ -15,8 +22,8 @@
 
 h1 {
   color: #0f172a;
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  line-height: 0.95;
+  font-size: clamp(2.75rem, 8vw, 6rem);
+  line-height: 0.92;
   margin: 0;
   max-width: 12ch;
 }
@@ -26,7 +33,7 @@ h1 {
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   line-height: 1.7;
   margin: 1.5rem 0 0;
-  max-width: 42rem;
+  max-width: 48rem;
 }
 
 .tile-grid {
@@ -46,7 +53,7 @@ h1 {
   color: inherit;
   display: grid;
   gap: 1rem;
-  min-height: 14rem;
+  min-height: 16rem;
   padding: 1.5rem;
   text-decoration: none;
   transition:
@@ -81,7 +88,14 @@ h1 {
   line-height: 1.15;
 }
 
-.tile span:last-child {
+.tile span:not(.tile__label, .tile__cta) {
   color: #64748b;
   line-height: 1.6;
+}
+
+.tile__cta {
+  align-self: end;
+  color: #0f766e;
+  font-weight: 800;
+  margin-top: 1rem;
 }

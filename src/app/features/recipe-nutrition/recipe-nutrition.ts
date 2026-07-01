@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeNutrition {
-  protected readonly title = 'Rezept zu Nutrition Seite';
-  protected readonly description = 'Platzhalterseite für die spätere Rezept-zu-Nutrition-Seite.';
+  protected readonly title = 'Nutrition';
+  protected readonly description = 'Die Rezept-zu-Nutrition-Seite ist als Navigationsziel vorbereitet.';
+  protected readonly comingSoon =
+    'Hier entsteht eine Seite, die Rezepte aufnimmt und daraus strukturierte Nährwertinformationen ableitet.';
 }

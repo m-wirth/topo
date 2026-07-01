@@ -4,27 +4,27 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./home/home').then((module) => module.Home),
-    title: 'Topo Apps',
+    title: 'Topo Dashboard',
   },
   {
-    path: 'ressourcen-tracker',
+    path: 'nutrition',
+    loadComponent: () =>
+      import('./features/recipe-nutrition/recipe-nutrition').then((module) => module.RecipeNutrition),
+    title: 'Nutrition',
+  },
+  {
+    path: 'resources',
     loadComponent: () =>
       import('./features/resource-tracker/resource-tracker').then((module) => module.ResourceTracker),
-    title: 'Ressourcen Tracker',
+    title: 'Resources',
   },
   {
-    path: 'swisstopo-karten-generator',
+    path: 'mapper',
     loadComponent: () =>
       import('./features/swisstopo-map-generator/swisstopo-map-generator').then(
         (module) => module.SwisstopoMapGenerator,
       ),
-    title: 'Swisstopo Karten Generator',
-  },
-  {
-    path: 'rezept-zu-nutrition',
-    loadComponent: () =>
-      import('./features/recipe-nutrition/recipe-nutrition').then((module) => module.RecipeNutrition),
-    title: 'Rezept zu Nutrition Seite',
+    title: 'Mapper',
   },
   {
     path: '**',

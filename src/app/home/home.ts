@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-interface AppTile {
+interface DashboardTile {
+  readonly eyebrow: string;
   readonly title: string;
   readonly description: string;
   readonly route: string;
@@ -15,21 +16,24 @@ interface AppTile {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
-  protected readonly appTiles: readonly AppTile[] = [
+  protected readonly dashboardTiles: readonly DashboardTile[] = [
     {
-      title: 'Ressourcen Tracker',
-      description: 'Einstiegspunkt für die spätere Ressourcen-Planung.',
-      route: '/ressourcen-tracker',
-    },
-    {
-      title: 'Swisstopo Karten Generator',
-      description: 'Einstiegspunkt für die spätere Karten-Erstellung.',
-      route: '/swisstopo-karten-generator',
-    },
-    {
+      eyebrow: 'Nutrition',
       title: 'Rezept zu Nutrition Seite',
-      description: 'Einstiegspunkt für die spätere Rezept- und Nährwertseite.',
-      route: '/rezept-zu-nutrition',
+      description: 'Rezeptdaten werden später in strukturierte Nährwertinformationen übersetzt.',
+      route: '/nutrition',
+    },
+    {
+      eyebrow: 'Resources',
+      title: 'Ressourcen Tracker',
+      description: 'Ressourcen, Kapazitäten und Status werden später zentral nachvollziehbar.',
+      route: '/resources',
+    },
+    {
+      eyebrow: 'Mapper',
+      title: 'Swisstopo Karten Generator',
+      description: 'Swisstopo-Karten und Exporte werden später über diesen Bereich vorbereitet.',
+      route: '/mapper',
     },
   ];
 }

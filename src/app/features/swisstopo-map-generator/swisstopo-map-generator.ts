@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwisstopoMapGenerator {
-  protected readonly title = 'Swisstopo Karten Generator';
-  protected readonly description = 'Platzhalterseite für den späteren Swisstopo Karten Generator.';
+  protected readonly title = 'Mapper';
+  protected readonly description = 'Der Swisstopo Karten Generator ist als Navigationsziel vorbereitet.';
+  protected readonly comingSoon =
+    'Hier entsteht ein Generator für Swisstopo-Karten, Kartenausschnitte und vorbereitete Export-Workflows.';
 }
