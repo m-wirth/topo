@@ -1,0 +1,21 @@
+<section class="splash" aria-labelledby="dashboard-title">
+  <div class="splash__content">
+    <p class="eyebrow">Topo Dashboard</p>
+    <h1 id="dashboard-title">Wähle den nächsten Arbeitsbereich</h1>
+    <p class="intro">
+      Diese Startseite dient als Splash Screen und navigiert zu den geplanten Unterseiten.
+      Die Tools sind als Grundstruktur angelegt und werden in den nächsten Schritten ausgebaut.
+    </p>
+  </div>
+</section>
+
+<nav class="tile-grid" aria-label="Dashboard Navigation">
+  @for (tile of dashboardTiles; track tile.route) {
+    <a class="tile" [routerLink]="tile.route">
+      <span class="tile__label">{{ tile.eyebrow }}</span>
+      <strong>{{ tile.title }}</strong>
+      <span>{{ tile.description }}</span>
+      <span class="tile__cta">Öffnen</span>
+    </a>
+  }
+</nav>
