@@ -13,6 +13,16 @@ export const routes: Routes = [
     title: 'Nutrition',
   },
   {
+    path: 'resources/new',
+    loadComponent: () => import('./features/resource-tracker/resource-form').then((module) => module.ResourceForm),
+    title: 'New Resource',
+  },
+  {
+    path: 'resources/:resourceId/edit',
+    loadComponent: () => import('./features/resource-tracker/resource-form').then((module) => module.ResourceForm),
+    title: 'Edit Resource',
+  },
+  {
     path: 'resources',
     loadComponent: () =>
       import('./features/resource-tracker/resource-tracker').then((module) => module.ResourceTracker),
