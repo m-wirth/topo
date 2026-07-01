@@ -22,7 +22,7 @@
     </div>
 
     @if (resources().length === 0) {
-      <p class="empty-state">Add your first resource to show it here for editing or removal.</p>
+      <p class="empty-state">No resources yet. Use Add New to create one and it will appear in this list.</p>
     } @else {
       <div class="resource-cards">
         @for (resource of resources(); track resource.id) {

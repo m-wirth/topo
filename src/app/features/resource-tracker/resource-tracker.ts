@@ -51,33 +51,4 @@ export class ResourceTracker {
   protected formatScore(score: number | null): string {
     return this.store.formatScore(score);
   }
-
-  private readStoredState(): StoredResourceTrackerState | null {
-    const storage = this.getStorage();
-
-    if (!storage) {
-      return null;
-    }
-
-    const storedState = storage.getItem(storageKey);
-
-    if (!storedState) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(storedState) as StoredResourceTrackerState;
-    } catch {
-      storage.removeItem(storageKey);
-      return null;
-    }
-  }
-
-  private writeStoredState(state: StoredResourceTrackerState): void {
-    this.getStorage()?.setItem(storageKey, JSON.stringify(state));
-  }
-
-  private getStorage(): Storage | null {
-    return typeof globalThis.localStorage === 'undefined' ? null : globalThis.localStorage;
-  }
 }

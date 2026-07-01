@@ -30,7 +30,7 @@ export interface CalendarWeek {
 export type Rating = 1 | 2 | 3 | 4 | 5;
 type DailyRatings = Record<string, Record<string, Rating | undefined>>;
 
-interface StoredResourceTrackerState {
+export interface StoredResourceTrackerState {
   readonly resources?: readonly Resource[];
   readonly dailyRatings?: DailyRatings;
 }
@@ -38,7 +38,7 @@ interface StoredResourceTrackerState {
 export const ratingScale: readonly Rating[] = [1, 2, 3, 4, 5];
 const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const shortWeekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const storageKey = 'topo.resource-tracker.v1';
+export const storageKey = 'topo.resource-tracker.v1';
 const defaultResources: readonly Resource[] = [
   {
     id: 'sleep',
@@ -64,7 +64,7 @@ export class ResourceTrackerStore {
   constructor() {
     const storedState = this.readStoredState();
 
-    if (storedState?.resources?.length) {
+    if (storedState?.resources) {
       this.resources.set(storedState.resources);
     }
 
