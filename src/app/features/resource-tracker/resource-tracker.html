@@ -21,7 +21,14 @@
     <form class="resource-form" (ngSubmit)="saveResource()">
       <label>
         Resource name
-        <input name="resource-name" type="text" [(ngModel)]="draft.name" placeholder="e.g. Sleep" required />
+        <input
+          name="resource-name"
+          type="text"
+          [ngModel]="draft().name"
+          (ngModelChange)="updateDraftName($event)"
+          placeholder="e.g. Sleep"
+          required
+        />
       </label>
 
       <label>
@@ -29,7 +36,8 @@
         <textarea
           name="resource-description"
           rows="3"
-          [(ngModel)]="draft.description"
+          [ngModel]="draft().description"
+          (ngModelChange)="updateDraftDescription($event)"
           placeholder="What does this resource measure?"
           required
         ></textarea>
@@ -42,7 +50,8 @@
             <input
               [name]="'rating-description-' + rating"
               type="text"
-              [(ngModel)]="draft.ratingDescriptions[rating - 1]"
+              [ngModel]="draft().ratingDescriptions[rating - 1]"
+              (ngModelChange)="updateDraftRatingDescription(rating - 1, $event)"
               [placeholder]="rating === 1 ? 'Weakest level' : rating === 5 ? 'Best level' : 'Describe this level'"
               required
             />
@@ -60,28 +69,39 @@
   </section>
 
   <section class="resource-list" aria-labelledby="resource-list-title">
-    <h2 id="resource-list-title">Tracked resources</h2>
-    <div class="resource-cards">
-      @for (resource of resources(); track resource.id) {
-        <article class="resource-card">
-          <div class="resource-card__header">
-            <div>
-              <h3>{{ resource.name }}</h3>
-              <p>{{ resource.description }}</p>
-            </div>
-            <div class="resource-card__actions" aria-label="Resource actions">
-              <button type="button" class="button-secondary" (click)="editResource(resource)">Edit</button>
-              <button type="button" class="button-danger" (click)="removeResource(resource.id)">Remove</button>
-            </div>
-          </div>
-          <ol>
-            @for (description of resource.ratingDescriptions; track $index) {
-              <li><strong>{{ $index + 1 }}:</strong> {{ description }}</li>
-            }
-          </ol>
-        </article>
-      }
+    <div class="resource-list__header">
+      <div>
+        <p class="eyebrow">Manage</p>
+        <h2 id="resource-list-title">Tracked resources</h2>
+      </div>
+      <span>{{ resources().length }} {{ resources().length === 1 ? 'resource' : 'resources' }}</span>
     </div>
+
+    @if (resources().length === 0) {
+      <p class="empty-state">Add your first resource with the form above. Each resource will appear here for editing or removal.</p>
+    } @else {
+      <div class="resource-cards">
+        @for (resource of resources(); track resource.id) {
+          <article class="resource-card">
+            <div class="resource-card__header">
+              <div>
+                <h3>{{ resource.name }}</h3>
+                <p>{{ resource.description }}</p>
+              </div>
+              <div class="resource-card__actions" aria-label="Resource actions">
+                <button type="button" class="button-secondary" (click)="editResource(resource)">Edit</button>
+                <button type="button" class="button-danger" (click)="removeResource(resource.id)">Remove</button>
+              </div>
+            </div>
+            <ol>
+              @for (description of resource.ratingDescriptions; track $index) {
+                <li><strong>{{ $index + 1 }}:</strong> {{ description }}</li>
+              }
+            </ol>
+          </article>
+        }
+      </div>
+    }
   </section>
 
   <section class="calendar-toolbar" aria-label="Calendar navigation">

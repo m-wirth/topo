@@ -68,7 +68,7 @@ export class ResourceTracker {
   protected readonly weekOffset = signal(0);
   protected readonly resources = signal<readonly Resource[]>(defaultResources);
   protected readonly dailyRatings = signal<DailyRatings>({});
-  protected readonly draft: ResourceDraft = this.createEmptyDraft();
+  protected readonly draft = signal<ResourceDraft>(this.createEmptyDraft());
 
   protected readonly week = computed(() => this.createWeek(this.weekOffset()));
 
@@ -92,7 +92,7 @@ export class ResourceTracker {
   }
 
   protected get isEditing(): boolean {
-    return this.draft.id !== null;
+    return this.draft().id !== null;
   }
 
   protected saveResource(): void {
@@ -102,10 +102,12 @@ export class ResourceTracker {
       return;
     }
 
-    if (this.draft.id) {
+    const draftId = this.draft().id;
+
+    if (draftId) {
       this.resources.update((resources) =>
         resources.map((existingResource) =>
-          existingResource.id === this.draft.id ? { ...resource, id: existingResource.id } : existingResource,
+          existingResource.id === draftId ? { ...resource, id: existingResource.id } : existingResource,
         ),
       );
     } else {
@@ -116,10 +118,12 @@ export class ResourceTracker {
   }
 
   protected editResource(resource: Resource): void {
-    this.draft.id = resource.id;
-    this.draft.name = resource.name;
-    this.draft.description = resource.description;
-    this.draft.ratingDescriptions = [...resource.ratingDescriptions];
+    this.draft.set({
+      id: resource.id,
+      name: resource.name,
+      description: resource.description,
+      ratingDescriptions: [...resource.ratingDescriptions],
+    });
   }
 
   protected removeResource(resourceId: string): void {
@@ -135,13 +139,30 @@ export class ResourceTracker {
       return nextRatings;
     });
 
-    if (this.draft.id === resourceId) {
+    if (this.draft().id === resourceId) {
       this.resetDraft();
     }
   }
 
   protected resetDraft(): void {
-    Object.assign(this.draft, this.createEmptyDraft());
+    this.draft.set(this.createEmptyDraft());
+  }
+
+  protected updateDraftName(name: string): void {
+    this.draft.update((draft) => ({ ...draft, name }));
+  }
+
+  protected updateDraftDescription(description: string): void {
+    this.draft.update((draft) => ({ ...draft, description }));
+  }
+
+  protected updateDraftRatingDescription(index: number, description: string): void {
+    this.draft.update((draft) => {
+      const ratingDescriptions = [...draft.ratingDescriptions] as ResourceDraft['ratingDescriptions'];
+      ratingDescriptions[index] = description;
+
+      return { ...draft, ratingDescriptions };
+    });
   }
 
   protected previousWeek(): void {
@@ -202,9 +223,10 @@ export class ResourceTracker {
   }
 
   private normalizeDraft(): Resource | null {
-    const name = this.draft.name.trim();
-    const description = this.draft.description.trim();
-    const ratingDescriptions = this.draft.ratingDescriptions.map(
+    const draft = this.draft();
+    const name = draft.name.trim();
+    const description = draft.description.trim();
+    const ratingDescriptions = draft.ratingDescriptions.map(
       (text) => text.trim(),
     ) as ResourceDraft['ratingDescriptions'];
 
@@ -213,7 +235,7 @@ export class ResourceTracker {
     }
 
     return {
-      id: this.draft.id ?? this.createResourceId(name),
+      id: draft.id ?? this.createResourceId(name),
       name,
       description,
       ratingDescriptions,

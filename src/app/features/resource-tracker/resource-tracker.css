@@ -532,3 +532,54 @@ button:focus-visible {
     min-height: 2.25rem;
   }
 }
+
+.resource-list__header {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.resource-list__header h2,
+.resource-list__header .eyebrow {
+  margin-bottom: 0;
+}
+
+.resource-list__header span {
+  background: #ccfbf1;
+  border-radius: 999px;
+  color: #0f766e;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.4rem 0.75rem;
+}
+
+.empty-state {
+  background: #ffffff;
+  border: 1px dashed #94a3b8;
+  border-radius: 1rem;
+  color: #475569;
+  margin: 0;
+  padding: 1.25rem;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__header {
+    align-items: start;
+    display: grid;
+  }
+
+  .week-summary div {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .rating-cell {
+    grid-template-columns: 1fr repeat(5, minmax(1.8rem, 1fr));
+  }
+
+  .rating-button {
+    min-height: 2.25rem;
+  }
+}
