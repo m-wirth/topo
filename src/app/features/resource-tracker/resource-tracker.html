@@ -4,21 +4,21 @@
     <p class="eyebrow">Resources</p>
     <h1 id="tracker-title">Resource Tracker</h1>
     <p class="intro">
-      Rate each resource from 1 to 5 for every day. Weekly summaries calculate the average per resource
-      and an overall weekly score from the available daily ratings.
+      Add the resources that matter to you, tap a number from 1 to 5 to score each day, and review
+      the weekly averages. Resources and ratings are saved in this browser for now.
     </p>
   </header>
 
   <section class="resource-editor" aria-labelledby="resource-editor-title">
     <div>
       <p class="eyebrow">Setup</p>
-      <h2 id="resource-editor-title">Add a resource</h2>
+      <h2 id="resource-editor-title">{{ isEditing ? 'Edit resource' : 'Add a resource' }}</h2>
       <p>
         A resource has a name, a short description and custom text for each rating step.
       </p>
     </div>
 
-    <form class="resource-form" (ngSubmit)="addResource()">
+    <form class="resource-form" (ngSubmit)="saveResource()">
       <label>
         Resource name
         <input name="resource-name" type="text" [(ngModel)]="draft.name" placeholder="e.g. Sleep" required />
@@ -50,7 +50,12 @@
         }
       </div>
 
-      <button type="submit">Add resource</button>
+      <div class="form-actions">
+        <button type="submit">{{ isEditing ? 'Save changes' : 'Add resource' }}</button>
+        @if (isEditing) {
+          <button type="button" class="button-secondary" (click)="resetDraft()">Cancel</button>
+        }
+      </div>
     </form>
   </section>
 
@@ -59,8 +64,16 @@
     <div class="resource-cards">
       @for (resource of resources(); track resource.id) {
         <article class="resource-card">
-          <h3>{{ resource.name }}</h3>
-          <p>{{ resource.description }}</p>
+          <div class="resource-card__header">
+            <div>
+              <h3>{{ resource.name }}</h3>
+              <p>{{ resource.description }}</p>
+            </div>
+            <div class="resource-card__actions" aria-label="Resource actions">
+              <button type="button" class="button-secondary" (click)="editResource(resource)">Edit</button>
+              <button type="button" class="button-danger" (click)="removeResource(resource.id)">Remove</button>
+            </div>
+          </div>
           <ol>
             @for (description of resource.ratingDescriptions; track $index) {
               <li><strong>{{ $index + 1 }}:</strong> {{ description }}</li>
@@ -72,64 +85,72 @@
   </section>
 
   <section class="calendar-toolbar" aria-label="Calendar navigation">
-    <button type="button" (click)="previousWeeks()">Previous weeks</button>
-    <button type="button" (click)="currentWeeks()">Current week</button>
-    <button type="button" (click)="nextWeeks()">Next weeks</button>
+    <button type="button" (click)="previousWeek()">Previous week</button>
+    <button type="button" (click)="currentWeek()">Current week</button>
+    <button type="button" (click)="nextWeek()">Next week</button>
   </section>
 
   <section class="calendar" aria-label="Weekly resource calendar">
-    @for (week of weeks(); track week.key) {
-      <article class="week-card">
-        <div class="week-card__grid">
-          <div class="week-card__main">
-            <h2>{{ week.label }}</h2>
+    <article class="week-card">
+      <div class="week-card__grid">
+        <div class="week-card__main">
+          <h2>{{ week().label }}</h2>
 
-            <div class="day-grid">
-              @for (day of week.days; track day.key) {
-                <section class="day-card" [attr.aria-labelledby]="'day-' + day.key">
-                  <header>
-                    <h3 [id]="'day-' + day.key">{{ day.weekday }}</h3>
-                    <span>{{ day.label }}</span>
-                  </header>
-
-                  <div class="day-ratings">
-                    @for (resource of resources(); track resource.id) {
-                      <label>
-                        {{ resource.name }}
-                        <select
-                          [value]="getRating(day.key, resource.id)"
-                          (change)="setRating(day.key, resource.id, $any($event.target).value)"
-                        >
-                          <option value="">Not rated</option>
-                          @for (rating of ratingScale; track rating) {
-                            <option [value]="rating">{{ rating }}</option>
-                          }
-                        </select>
-                      </label>
-                    }
-                  </div>
-                </section>
+          <div class="compact-week" role="table" aria-label="Resource ratings for {{ week().label }}">
+            <div class="compact-week__head" role="row">
+              <span role="columnheader">Resource</span>
+              @for (day of week().days; track day.key) {
+                <span role="columnheader">
+                  <abbr [title]="day.weekday">{{ day.shortWeekday }}</abbr>
+                  <small>{{ day.label }}</small>
+                </span>
               }
             </div>
-          </div>
 
-          <aside class="week-summary" aria-label="Weekly averages">
-            <h3>Week summary</h3>
-            <dl>
-              @for (resource of resources(); track resource.id) {
-                <div>
-                  <dt>{{ resource.name }}</dt>
-                  <dd>{{ formatScore(weeklyAverage(week, resource.id)) }}</dd>
+            @for (resource of resources(); track resource.id) {
+              <div class="compact-week__row" role="row">
+                <div class="compact-week__resource" role="rowheader">
+                  <strong>{{ resource.name }}</strong>
+                  <span>{{ formatScore(weeklyAverage(resource.id)) }}</span>
                 </div>
-              }
-              <div class="overall-score">
-                <dt>Overall</dt>
-                <dd>{{ formatScore(weeklyOverallScore(week)) }}</dd>
+
+                @for (day of week().days; track day.key) {
+                  <div class="rating-cell" role="cell" [attr.aria-label]="resource.name + ' on ' + day.weekday + ', ' + day.label">
+                    @for (rating of ratingScale; track rating) {
+                      <button
+                        type="button"
+                        class="rating-button"
+                        [class.rating-button--active]="getRating(day.key, resource.id) === rating"
+                        [attr.aria-pressed]="getRating(day.key, resource.id) === rating"
+                        [title]="resource.ratingDescriptions[rating - 1]"
+                        (click)="setRating(day.key, resource.id, rating)"
+                      >
+                        {{ rating }}
+                      </button>
+                    }
+                  </div>
+                }
               </div>
-            </dl>
-          </aside>
+            }
+          </div>
         </div>
-      </article>
-    }
+
+        <aside class="week-summary" aria-label="Weekly averages">
+          <h3>Week summary</h3>
+          <dl>
+            @for (resource of resources(); track resource.id) {
+              <div>
+                <dt>{{ resource.name }}</dt>
+                <dd>{{ formatScore(weeklyAverage(resource.id)) }}</dd>
+              </div>
+            }
+            <div class="overall-score">
+              <dt>Overall</dt>
+              <dd>{{ formatScore(weeklyOverallScore()) }}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </article>
   </section>
 </section>

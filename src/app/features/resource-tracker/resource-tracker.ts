@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -10,6 +10,7 @@ interface Resource {
 }
 
 interface ResourceDraft {
+  id: string | null;
   name: string;
   description: string;
   ratingDescriptions: [string, string, string, string, string];
@@ -19,6 +20,7 @@ interface CalendarDay {
   readonly key: string;
   readonly label: string;
   readonly weekday: string;
+  readonly shortWeekday: string;
 }
 
 interface CalendarWeek {
@@ -30,8 +32,29 @@ interface CalendarWeek {
 type Rating = 1 | 2 | 3 | 4 | 5;
 type DailyRatings = Record<string, Record<string, Rating | undefined>>;
 
+interface StoredResourceTrackerState {
+  readonly resources?: readonly Resource[];
+  readonly dailyRatings?: DailyRatings;
+}
+
 const ratingScale: readonly Rating[] = [1, 2, 3, 4, 5];
 const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const shortWeekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const storageKey = 'topo.resource-tracker.v1';
+const defaultResources: readonly Resource[] = [
+  {
+    id: 'sleep',
+    name: 'Sleep',
+    description: 'Track the quality and duration of nightly sleep.',
+    ratingDescriptions: [
+      'Slept less than 5 hours a night.',
+      'Slept less than 6 hours a night.',
+      'Slept around 7 hours.',
+      'Slept around 7.5 hours.',
+      'Slept 8+ hours or woke up fully recovered.',
+    ],
+  },
+];
 
 @Component({
   selector: 'app-resource-tracker',
@@ -42,92 +65,114 @@ const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', '
 })
 export class ResourceTracker {
   protected readonly ratingScale = ratingScale;
-  protected readonly weeksToShow = 6;
   protected readonly weekOffset = signal(0);
-  protected readonly resources = signal<readonly Resource[]>([
-    {
-      id: 'sleep',
-      name: 'Sleep',
-      description: 'Track the quality and duration of nightly sleep.',
-      ratingDescriptions: [
-        'Slept less than 5 hours a night.',
-        'Slept less than 6 hours a night.',
-        'Slept around 7 hours.',
-        'Slept around 7.5 hours.',
-        'Slept 8+ hours or woke up fully recovered.',
-      ],
-    },
-  ]);
+  protected readonly resources = signal<readonly Resource[]>(defaultResources);
   protected readonly dailyRatings = signal<DailyRatings>({});
-  protected readonly draft: ResourceDraft = {
-    name: '',
-    description: '',
-    ratingDescriptions: ['', '', '', '', ''],
-  };
+  protected readonly draft: ResourceDraft = this.createEmptyDraft();
 
-  protected readonly weeks = computed(() => this.createWeeks(this.weekOffset(), this.weeksToShow));
+  protected readonly week = computed(() => this.createWeek(this.weekOffset()));
 
-  protected addResource(): void {
-    const name = this.draft.name.trim();
-    const description = this.draft.description.trim();
-    const ratingDescriptions = this.draft.ratingDescriptions.map(
-      (text) => text.trim(),
-    ) as ResourceDraft['ratingDescriptions'];
+  constructor() {
+    const storedState = this.readStoredState();
 
-    if (!name || !description || ratingDescriptions.some((text) => !text)) {
+    if (storedState?.resources?.length) {
+      this.resources.set(storedState.resources);
+    }
+
+    if (storedState?.dailyRatings) {
+      this.dailyRatings.set(storedState.dailyRatings);
+    }
+
+    effect(() => {
+      this.writeStoredState({
+        resources: this.resources(),
+        dailyRatings: this.dailyRatings(),
+      });
+    });
+  }
+
+  protected get isEditing(): boolean {
+    return this.draft.id !== null;
+  }
+
+  protected saveResource(): void {
+    const resource = this.normalizeDraft();
+
+    if (!resource) {
       return;
     }
 
-    this.resources.update((resources) => [
-      ...resources,
-      {
-        id: this.createResourceId(name),
-        name,
-        description,
-        ratingDescriptions,
-      },
-    ]);
+    if (this.draft.id) {
+      this.resources.update((resources) =>
+        resources.map((existingResource) =>
+          existingResource.id === this.draft.id ? { ...resource, id: existingResource.id } : existingResource,
+        ),
+      );
+    } else {
+      this.resources.update((resources) => [...resources, resource]);
+    }
 
-    this.draft.name = '';
-    this.draft.description = '';
-    this.draft.ratingDescriptions = ['', '', '', '', ''];
+    this.resetDraft();
   }
 
-  protected previousWeeks(): void {
-    this.weekOffset.update((offset) => offset - this.weeksToShow);
+  protected editResource(resource: Resource): void {
+    this.draft.id = resource.id;
+    this.draft.name = resource.name;
+    this.draft.description = resource.description;
+    this.draft.ratingDescriptions = [...resource.ratingDescriptions];
   }
 
-  protected nextWeeks(): void {
-    this.weekOffset.update((offset) => offset + this.weeksToShow);
+  protected removeResource(resourceId: string): void {
+    this.resources.update((resources) => resources.filter((resource) => resource.id !== resourceId));
+    this.dailyRatings.update((ratings) => {
+      const nextRatings: DailyRatings = {};
+
+      Object.entries(ratings).forEach(([dayKey, resourceRatings]) => {
+        const { [resourceId]: _removedRating, ...remainingRatings } = resourceRatings;
+        nextRatings[dayKey] = remainingRatings;
+      });
+
+      return nextRatings;
+    });
+
+    if (this.draft.id === resourceId) {
+      this.resetDraft();
+    }
   }
 
-  protected currentWeeks(): void {
+  protected resetDraft(): void {
+    Object.assign(this.draft, this.createEmptyDraft());
+  }
+
+  protected previousWeek(): void {
+    this.weekOffset.update((offset) => offset - 7);
+  }
+
+  protected nextWeek(): void {
+    this.weekOffset.update((offset) => offset + 7);
+  }
+
+  protected currentWeek(): void {
     this.weekOffset.set(0);
   }
 
-  protected getRating(dayKey: string, resourceId: string): Rating | '' {
-    return this.dailyRatings()[dayKey]?.[resourceId] ?? '';
+  protected getRating(dayKey: string, resourceId: string): Rating | undefined {
+    return this.dailyRatings()[dayKey]?.[resourceId];
   }
 
-  protected setRating(dayKey: string, resourceId: string, value: string): void {
-    const parsed = Number(value);
-
-    if (!ratingScale.includes(parsed as Rating)) {
-      return;
-    }
-
+  protected setRating(dayKey: string, resourceId: string, rating: Rating): void {
     this.dailyRatings.update((ratings) => ({
       ...ratings,
       [dayKey]: {
         ...(ratings[dayKey] ?? {}),
-        [resourceId]: parsed as Rating,
+        [resourceId]: ratings[dayKey]?.[resourceId] === rating ? undefined : rating,
       },
     }));
   }
 
-  protected weeklyAverage(week: CalendarWeek, resourceId: string): number | null {
-    const values = week.days
-      .map((day) => this.dailyRatings()[day.key]?.[resourceId])
+  protected weeklyAverage(resourceId: string): number | null {
+    const values = this.week()
+      .days.map((day) => this.dailyRatings()[day.key]?.[resourceId])
       .filter((rating): rating is Rating => rating !== undefined);
 
     if (values.length === 0) {
@@ -137,9 +182,9 @@ export class ResourceTracker {
     return values.reduce((sum, rating) => sum + rating, 0) / values.length;
   }
 
-  protected weeklyOverallScore(week: CalendarWeek): number | null {
+  protected weeklyOverallScore(): number | null {
     const resourceIds = this.resources().map((resource) => resource.id);
-    const values = week.days.flatMap((day) =>
+    const values = this.week().days.flatMap((day) =>
       resourceIds
         .map((resourceId) => this.dailyRatings()[day.key]?.[resourceId])
         .filter((rating): rating is Rating => rating !== undefined),
@@ -156,34 +201,58 @@ export class ResourceTracker {
     return score === null ? '—' : score.toFixed(1);
   }
 
-  private createWeeks(offset: number, count: number): readonly CalendarWeek[] {
-    const firstMonday = this.startOfCurrentWeek();
-    firstMonday.setDate(firstMonday.getDate() + offset);
+  private normalizeDraft(): Resource | null {
+    const name = this.draft.name.trim();
+    const description = this.draft.description.trim();
+    const ratingDescriptions = this.draft.ratingDescriptions.map(
+      (text) => text.trim(),
+    ) as ResourceDraft['ratingDescriptions'];
 
-    return Array.from({ length: count }, (_, weekIndex) => {
-      const weekStart = new Date(firstMonday);
-      weekStart.setDate(firstMonday.getDate() + weekIndex * 7);
-      const days = Array.from({ length: 7 }, (_, dayIndex) => {
-        const date = new Date(weekStart);
-        date.setDate(weekStart.getDate() + dayIndex);
+    if (!name || !description || ratingDescriptions.some((text) => !text)) {
+      return null;
+    }
 
-        return {
-          key: this.toDateKey(date),
-          label: new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short' }).format(date),
-          weekday: weekdayLabels[dayIndex],
-        } satisfies CalendarDay;
-      });
+    return {
+      id: this.draft.id ?? this.createResourceId(name),
+      name,
+      description,
+      ratingDescriptions,
+    };
+  }
+
+  private createEmptyDraft(): ResourceDraft {
+    return {
+      id: null,
+      name: '',
+      description: '',
+      ratingDescriptions: ['', '', '', '', ''],
+    };
+  }
+
+  private createWeek(offset: number): CalendarWeek {
+    const weekStart = this.startOfCurrentWeek();
+    weekStart.setDate(weekStart.getDate() + offset);
+    const days = Array.from({ length: 7 }, (_, dayIndex) => {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + dayIndex);
 
       return {
-        key: this.toDateKey(weekStart),
-        label: `Week of ${new Intl.DateTimeFormat('en', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        }).format(weekStart)}`,
-        days,
-      } satisfies CalendarWeek;
+        key: this.toDateKey(date),
+        label: new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short' }).format(date),
+        weekday: weekdayLabels[dayIndex],
+        shortWeekday: shortWeekdayLabels[dayIndex],
+      } satisfies CalendarDay;
     });
+
+    return {
+      key: this.toDateKey(weekStart),
+      label: `Week of ${new Intl.DateTimeFormat('en', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(weekStart)}`,
+      days,
+    };
   }
 
   private startOfCurrentWeek(): Date {
@@ -212,5 +281,34 @@ export class ResourceTracker {
       .replace(/(^-|-$)/g, '');
 
     return `${slug || 'resource'}-${Date.now()}`;
+  }
+
+  private readStoredState(): StoredResourceTrackerState | null {
+    const storage = this.getStorage();
+
+    if (!storage) {
+      return null;
+    }
+
+    const storedState = storage.getItem(storageKey);
+
+    if (!storedState) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedState) as StoredResourceTrackerState;
+    } catch {
+      storage.removeItem(storageKey);
+      return null;
+    }
+  }
+
+  private writeStoredState(state: StoredResourceTrackerState): void {
+    this.getStorage()?.setItem(storageKey, JSON.stringify(state));
+  }
+
+  private getStorage(): Storage | null {
+    return typeof globalThis.localStorage === 'undefined' ? null : globalThis.localStorage;
   }
 }
