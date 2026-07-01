@@ -569,4 +569,17 @@ button:focus-visible {
     align-items: start;
     display: grid;
   }
+
+  .week-summary div {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .rating-cell {
+    grid-template-columns: 1fr repeat(5, minmax(1.8rem, 1fr));
+  }
+
+  .rating-button {
+    min-height: 2.25rem;
+  }
 }
