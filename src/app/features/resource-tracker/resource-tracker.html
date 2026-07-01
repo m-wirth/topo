@@ -1,0 +1,135 @@
+<section class="tracker" aria-labelledby="tracker-title">
+  <header class="tracker__header">
+    <a routerLink="/" class="back-link">Back to dashboard</a>
+    <p class="eyebrow">Resources</p>
+    <h1 id="tracker-title">Resource Tracker</h1>
+    <p class="intro">
+      Rate each resource from 1 to 5 for every day. Weekly summaries calculate the average per resource
+      and an overall weekly score from the available daily ratings.
+    </p>
+  </header>
+
+  <section class="resource-editor" aria-labelledby="resource-editor-title">
+    <div>
+      <p class="eyebrow">Setup</p>
+      <h2 id="resource-editor-title">Add a resource</h2>
+      <p>
+        A resource has a name, a short description and custom text for each rating step.
+      </p>
+    </div>
+
+    <form class="resource-form" (ngSubmit)="addResource()">
+      <label>
+        Resource name
+        <input name="resource-name" type="text" [(ngModel)]="draft.name" placeholder="e.g. Sleep" required />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          name="resource-description"
+          rows="3"
+          [(ngModel)]="draft.description"
+          placeholder="What does this resource measure?"
+          required
+        ></textarea>
+      </label>
+
+      <div class="rating-descriptions" aria-label="Rating descriptions">
+        @for (rating of ratingScale; track rating) {
+          <label>
+            Rating {{ rating }} description
+            <input
+              [name]="'rating-description-' + rating"
+              type="text"
+              [(ngModel)]="draft.ratingDescriptions[rating - 1]"
+              [placeholder]="rating === 1 ? 'Weakest level' : rating === 5 ? 'Best level' : 'Describe this level'"
+              required
+            />
+          </label>
+        }
+      </div>
+
+      <button type="submit">Add resource</button>
+    </form>
+  </section>
+
+  <section class="resource-list" aria-labelledby="resource-list-title">
+    <h2 id="resource-list-title">Tracked resources</h2>
+    <div class="resource-cards">
+      @for (resource of resources(); track resource.id) {
+        <article class="resource-card">
+          <h3>{{ resource.name }}</h3>
+          <p>{{ resource.description }}</p>
+          <ol>
+            @for (description of resource.ratingDescriptions; track $index) {
+              <li><strong>{{ $index + 1 }}:</strong> {{ description }}</li>
+            }
+          </ol>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="calendar-toolbar" aria-label="Calendar navigation">
+    <button type="button" (click)="previousWeeks()">Previous weeks</button>
+    <button type="button" (click)="currentWeeks()">Current week</button>
+    <button type="button" (click)="nextWeeks()">Next weeks</button>
+  </section>
+
+  <section class="calendar" aria-label="Weekly resource calendar">
+    @for (week of weeks(); track week.key) {
+      <article class="week-card">
+        <div class="week-card__grid">
+          <div class="week-card__main">
+            <h2>{{ week.label }}</h2>
+
+            <div class="day-grid">
+              @for (day of week.days; track day.key) {
+                <section class="day-card" [attr.aria-labelledby]="'day-' + day.key">
+                  <header>
+                    <h3 [id]="'day-' + day.key">{{ day.weekday }}</h3>
+                    <span>{{ day.label }}</span>
+                  </header>
+
+                  <div class="day-ratings">
+                    @for (resource of resources(); track resource.id) {
+                      <label>
+                        {{ resource.name }}
+                        <select
+                          [value]="getRating(day.key, resource.id)"
+                          (change)="setRating(day.key, resource.id, $any($event.target).value)"
+                        >
+                          <option value="">Not rated</option>
+                          @for (rating of ratingScale; track rating) {
+                            <option [value]="rating">{{ rating }}</option>
+                          }
+                        </select>
+                      </label>
+                    }
+                  </div>
+                </section>
+              }
+            </div>
+          </div>
+
+          <aside class="week-summary" aria-label="Weekly averages">
+            <h3>Week summary</h3>
+            <dl>
+              @for (resource of resources(); track resource.id) {
+                <div>
+                  <dt>{{ resource.name }}</dt>
+                  <dd>{{ formatScore(weeklyAverage(week, resource.id)) }}</dd>
+                </div>
+              }
+              <div class="overall-score">
+                <dt>Overall</dt>
+                <dd>{{ formatScore(weeklyOverallScore(week)) }}</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </article>
+    }
+  </section>
+</section>

@@ -6,13 +6,13 @@ Statische Angular-App für GitHub Pages mit einem Dashboard-Splash-Screen und Ei
 2. Swisstopo Karten Generator
 3. Rezept zu Nutrition Seite
 
-Aktuell sind nur das moderne Angular-Setup, das Dashboard mit Kacheln und Platzhalter-Unterseiten umgesetzt.
-Die fachlichen Seiten werden später ergänzt.
+Aktuell sind das moderne Angular-Setup, das Dashboard mit Kacheln und der Ressourcen Tracker umgesetzt.
+Die Nutrition- und Mapper-Seiten bleiben Platzhalter und werden später ergänzt.
 
 ## Routen
 
 - `/nutrition` - Rezept zu Nutrition Seite
-- `/resources` - Ressourcen Tracker
+- `/resources` - Ressourcen Tracker mit Wochenkalender, Tagesbewertungen und Wochen-Durchschnitt
 - `/mapper` - Swisstopo Karten Generator
 
 ## Entwicklung
