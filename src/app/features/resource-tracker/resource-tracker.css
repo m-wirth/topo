@@ -722,4 +722,242 @@ button:focus-visible {
   .resource-list__tools .icon-action {
     width: 2.5rem;
   }
+
+  .week-summary div {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .rating-cell {
+    grid-template-columns: 1fr repeat(5, minmax(1.8rem, 1fr));
+  }
+
+  .rating-button {
+    min-height: 2.25rem;
+  }
+}
+
+.resource-list__header {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.resource-list__header h2,
+.resource-list__header .eyebrow {
+  margin-bottom: 0;
+}
+
+.resource-list__header span {
+  background: #ccfbf1;
+  border-radius: 999px;
+  color: #0f766e;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.4rem 0.75rem;
+}
+
+.empty-state {
+  background: #ffffff;
+  border: 1px dashed #94a3b8;
+  border-radius: 1rem;
+  color: #475569;
+  margin: 0;
+  padding: 1.25rem;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__header {
+    align-items: start;
+    display: grid;
+  }
+}
+
+.button-link {
+  align-items: center;
+  background: #0f766e;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
+
+.button-link:hover,
+.button-link:focus-visible {
+  background: #115e59;
+}
+
+.button-link--secondary {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.button-link--secondary:hover,
+.button-link--secondary:focus-visible {
+  background: #bae6fd;
+}
+
+.resource-list__tools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__tools {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .button-link {
+    width: 100%;
+  }
+}
+
+.snackbar {
+  align-items: center;
+  background: #0f766e;
+  border-radius: 1rem;
+  bottom: 1rem;
+  box-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.24);
+  color: #ffffff;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  left: 50%;
+  max-width: min(38rem, calc(100vw - 2rem));
+  padding: 1rem;
+  position: fixed;
+  transform: translateX(-50%);
+  width: max-content;
+  z-index: 20;
+}
+
+.snackbar--error {
+  background: #991b1b;
+}
+
+.snackbar button {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+}
+
+.snackbar button:hover,
+.snackbar button:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@media (max-width: 34rem) {
+  .snackbar {
+    align-items: stretch;
+    display: grid;
+    width: calc(100vw - 2rem);
+  }
+
+  .week-summary div {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .rating-cell {
+    grid-template-columns: 1fr repeat(5, minmax(1.8rem, 1fr));
+  }
+
+  .rating-button {
+    min-height: 2.25rem;
+  }
+}
+
+.resource-list__header {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.resource-list__header h2,
+.resource-list__header .eyebrow {
+  margin-bottom: 0;
+}
+
+.resource-list__header span {
+  background: #ccfbf1;
+  border-radius: 999px;
+  color: #0f766e;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.4rem 0.75rem;
+}
+
+.empty-state {
+  background: #ffffff;
+  border: 1px dashed #94a3b8;
+  border-radius: 1rem;
+  color: #475569;
+  margin: 0;
+  padding: 1.25rem;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__header {
+    align-items: start;
+    display: grid;
+  }
+}
+
+.button-link {
+  align-items: center;
+  background: #0f766e;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
+
+.button-link:hover,
+.button-link:focus-visible {
+  background: #115e59;
+}
+
+.button-link--secondary {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.button-link--secondary:hover,
+.button-link--secondary:focus-visible {
+  background: #bae6fd;
+}
+
+.resource-list__tools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__tools {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .button-link {
+    width: 100%;
+  }
 }
