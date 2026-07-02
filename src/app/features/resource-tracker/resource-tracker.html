@@ -17,7 +17,7 @@
       </div>
       <div class="resource-list__tools">
         <span>{{ resources().length }} {{ resources().length === 1 ? 'resource' : 'resources' }}</span>
-        <a routerLink="/resources/new" class="button-link">Add New</a>
+        <a routerLink="/resources/new" class="icon-action icon-action--primary" aria-label="Add new resource" title="Add new resource">+</a>
       </div>
     </div>
 
@@ -33,8 +33,8 @@
                 <p>{{ resource.description }}</p>
               </div>
               <div class="resource-card__actions" aria-label="Resource actions">
-                <a [routerLink]="['/resources', resource.id, 'edit']" class="button-link button-link--secondary">Edit</a>
-                <button type="button" class="button-danger" (click)="removeResource(resource.id)">Remove</button>
+                <a [routerLink]="['/resources', resource.id, 'edit']" class="icon-action icon-action--secondary" [attr.aria-label]="'Edit ' + resource.name" title="Edit resource">✎</a>
+                <button type="button" class="icon-action icon-action--danger" (click)="removeResource(resource.id)" [attr.aria-label]="'Remove ' + resource.name" title="Remove resource">×</button>
               </div>
             </div>
             <ol>

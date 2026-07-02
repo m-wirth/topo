@@ -659,83 +659,68 @@ button:focus-visible {
     display: grid;
     width: calc(100vw - 2rem);
   }
-
-  .calendar-toolbar button,
-  .resource-card__actions button,
-  .form-actions button {
-    justify-self: stretch;
-  }
-
-  .compact-week {
-    border: 0;
-    gap: 0.75rem;
-    min-width: 0;
-    overflow: visible;
-  }
-
-  .compact-week__head {
-    display: none;
-  }
-
-  .compact-week__row {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    display: grid;
-    gap: 0.5rem;
-    grid-template-columns: 1fr;
-    padding: 0.75rem;
-  }
-
-  .compact-week__resource,
-  .rating-cell {
-    border: 0;
-    padding: 0;
-    position: static;
-  }
-
-  .rating-cell {
-    align-items: center;
-    grid-template-columns: minmax(4rem, 0.8fr) repeat(5, minmax(2rem, 1fr));
-  }
-
-  .rating-cell::before {
-    color: #64748b;
-    content: attr(aria-label);
-    font-size: 0.75rem;
-    font-weight: 800;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 
-@media (max-width: 34rem) {
-  h1 {
-    font-size: clamp(2.25rem, 16vw, 3.5rem);
+.icon-action {
+  align-items: center;
+  background: #e0f2fe;
+  border: 0;
+  border-radius: 999px;
+  color: #075985;
+  display: inline-flex;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 900;
+  height: 2.5rem;
+  justify-content: center;
+  justify-self: auto;
+  line-height: 1;
+  padding: 0;
+  text-decoration: none;
+  width: 2.5rem;
+}
+
+.icon-action:hover,
+.icon-action:focus-visible {
+  background: #bae6fd;
+}
+
+.icon-action--primary {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.icon-action--primary:hover,
+.icon-action--primary:focus-visible {
+  background: #115e59;
+}
+
+.icon-action--danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.icon-action--danger:hover,
+.icon-action--danger:focus-visible {
+  background: #fecaca;
+}
+
+@media (max-width: 56rem) {
+  .resource-list__tools {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
   }
 
-  .intro {
-    font-size: 1rem;
+  .resource-card__actions {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
   }
 
-  input,
-  textarea,
-  button {
-    width: 100%;
-  }
-
-  .rating-descriptions {
-    gap: 0.75rem;
-  }
-
-  .resource-cards,
-  .calendar {
-    gap: 1rem;
-  }
-
-  .week-summary dl {
-    grid-template-columns: 1fr;
+  .resource-card__actions .icon-action,
+  .resource-list__tools .icon-action {
+    width: 2.5rem;
   }
 
   .week-summary div {
