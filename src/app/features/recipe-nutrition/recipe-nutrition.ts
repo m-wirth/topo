@@ -6,6 +6,13 @@ type Big7Key = 'energy' | 'fat' | 'saturatedFat' | 'carbohydrates' | 'sugars' | 
 type NutritionValue = Record<Big7Key, number>;
 type LoadState = 'idle' | 'loading' | 'success' | 'error';
 
+interface AiRecipePayload {
+  title?: string;
+  servingSizeGram?: number;
+  perServing?: Partial<NutritionValue>;
+  per100g?: Partial<NutritionValue>;
+}
+
 interface Big7Nutrient {
   key: Big7Key;
   label: string;
@@ -114,13 +121,11 @@ export class RecipeNutrition {
     try {
       const markdown = await this.fetchReadablePage(url);
       const parsed = this.extractRecipeData(markdown, url);
-      const completed = this.hasCompleteNutrition(parsed.perServing)
-        ? parsed
-        : await this.completeWithAi(parsed, markdown, url);
+      const completed = await this.ensureNutrition(parsed, markdown, url);
 
       this.analysis.set({ ...completed, adaptations: this.createAdaptations(completed.perServing) });
       this.importState.set('success');
-      this.importMessage.set('Live-Daten wurden aus der Rezeptseite extrahiert. Fehlende Felder werden nur mit API-Key per AI ergänzt.');
+      this.importMessage.set('Live-Daten wurden aus der Rezeptseite gelesen; fehlende oder unstrukturierte Werte wurden bei Bedarf per AI geschätzt.');
     } catch (error) {
       this.importState.set('error');
       this.importMessage.set(this.errorMessage(error));
@@ -169,14 +174,15 @@ export class RecipeNutrition {
 
   private async findBestFromSource(source: RecipeSource, query: string, target: NutritionValue): Promise<RecipeSuggestion | null> {
     const searchMarkdown = await this.fetchReadablePage(source.searchUrl(query));
-    const urls = this.extractLinks(searchMarkdown, source.host).slice(0, 5);
-    const candidates = await Promise.all(urls.map(async (url) => {
+    const urls = await this.findRecipeUrlsFromSearch(searchMarkdown, source, query);
+    const candidates = await Promise.all(urls.slice(0, 5).map(async (url) => {
       const markdown = await this.fetchReadablePage(url);
-      const recipe = this.extractRecipeData(markdown, url, source.name);
-      return this.hasCompleteNutrition(recipe.perServing) ? this.toSuggestion(recipe, target) : null;
+      const parsed = this.extractRecipeData(markdown, url, source.name);
+      const recipe = await this.ensureNutrition(parsed, markdown, url);
+      return this.toSuggestion(recipe, target);
     }));
 
-    return candidates.filter((candidate): candidate is RecipeSuggestion => candidate !== null).sort((a, b) => b.match - a.match)[0] ?? null;
+    return candidates.sort((a, b) => b.match - a.match)[0] ?? null;
   }
 
   private async fetchReadablePage(url: string): Promise<string> {
@@ -242,22 +248,42 @@ export class RecipeNutrition {
     return [...new Set(matches)].filter((url) => url.includes(host) && /rezept|recipe/i.test(url));
   }
 
+  private async findRecipeUrlsFromSearch(markdown: string, source: RecipeSource, query: string): Promise<string[]> {
+    const regexLinks = this.extractLinks(markdown, source.host);
+    if (regexLinks.length > 0) return regexLinks;
+    if (!this.apiKey()) {
+      throw new Error(`Keine Rezeptlinks für ${source.name} gefunden. Bitte API-Key hinterlegen, damit AI die Suchseite ohne fixes Format interpretieren kann.`);
+    }
+
+    return this.extractLinksWithAi(markdown, source, query);
+  }
+
+  private async ensureNutrition(parsed: RecipeAnalysis, markdown: string, url: string): Promise<RecipeAnalysis> {
+    if (this.hasCompleteNutrition(parsed.perServing)) return parsed;
+    if (!this.apiKey()) {
+      throw new Error('Die Rezeptseite enthält keine vollständig lesbaren Big-7-Labels. Bitte API-Key hinterlegen, damit AI die Werte aus Zutaten, Portionen und Text schätzen kann.');
+    }
+
+    return this.completeWithAi(parsed, markdown, url);
+  }
+
+  private async extractLinksWithAi(markdown: string, source: RecipeSource, query: string): Promise<string[]> {
+    const prompt = `Du siehst den geladenen Inhalt einer Rezept-Suchseite. Finde echte Rezept-Detail-URLs für ${source.name} zum Suchprofil "${query}". Es gibt kein fixes HTML-Format. Antworte nur als JSON: {"urls":["https://..."]}. Inhalt:
+
+${markdown.slice(0, 10000)}`;
+    const text = await this.callOpenAi(prompt);
+    const json = this.parseJson<{ urls?: string[] }>(text);
+    return [...new Set(json?.urls ?? [])].filter((url) => url.includes(source.host));
+  }
+
   private async completeWithAi(parsed: RecipeAnalysis, markdown: string, url: string): Promise<RecipeAnalysis> {
     const key = this.apiKey();
     if (!key) return parsed;
 
-    const prompt = `Extrahiere aus diesem Rezept echte Big-7-Nährwerte. Antworte nur als JSON mit title, servingSizeGram, perServing und per100g. URL: ${url}\n\n${markdown.slice(0, 12000)}`;
-    const response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: 'gpt-4.1-mini', input: prompt }),
-    });
-    if (!response.ok) throw new Error(`AI-Fallback fehlgeschlagen (${response.status}).`);
-    const data = await response.json();
-    const text = data.output_text ?? data.output?.flatMap((item: { content?: { text?: string }[] }) => item.content ?? []).map((content: { text?: string }) => content.text ?? '').join('') ?? '';
-    const json = text.match(/\{[\s\S]*\}/)?.[0];
-    if (!json) return parsed;
-    const ai = JSON.parse(json);
+    const prompt = `Extrahiere oder schätze aus diesem unstrukturierten Rezepttext die Big-7-Nährwerte. Falls explizite Nährwertlabels fehlen, berechne plausible Werte aus Zutaten, Mengen und Portionen. Antworte nur als JSON mit title, servingSizeGram, perServing und per100g. URL: ${url}\n\n${markdown.slice(0, 12000)}`;
+    const text = await this.callOpenAi(prompt);
+    const ai = this.parseJson<AiRecipePayload>(text);
+    if (!ai) return parsed;
 
     return {
       ...parsed,
@@ -265,8 +291,28 @@ export class RecipeNutrition {
       servingSize: Number(ai.servingSizeGram ?? parsed.servingSize),
       perServing: this.normalizeNutrition(ai.perServing ?? parsed.perServing),
       per100g: this.normalizeNutrition(ai.per100g ?? parsed.per100g),
-      confidence: 'mit AI aus Rezeptinhalt ergänzt',
+      confidence: 'mit AI aus unstrukturiertem Rezeptinhalt geschätzt',
     };
+  }
+
+  private async callOpenAi(prompt: string): Promise<string> {
+    const key = this.apiKey();
+    if (!key) throw new Error('Für diese unstrukturierte Seite wird ein OpenAI API-Key benötigt.');
+
+    const response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model: 'gpt-4.1-mini', input: prompt }),
+    });
+    if (!response.ok) throw new Error(`AI-Fallback fehlgeschlagen (${response.status}).`);
+    const data = await response.json();
+    return data.output_text ?? data.output?.flatMap((item: { content?: { text?: string }[] }) => item.content ?? []).map((content: { text?: string }) => content.text ?? '').join('') ?? '';
+  }
+
+  private parseJson<T>(text: string): T | null {
+    const json = text.match(/\{[\s\S]*\}/)?.[0];
+    if (!json) return null;
+    return JSON.parse(json) as T;
   }
 
   private normalizeNutrition(value: Partial<NutritionValue>): NutritionValue {

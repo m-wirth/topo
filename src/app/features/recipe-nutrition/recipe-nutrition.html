@@ -5,8 +5,8 @@
     <p class="eyebrow">Nutrition Lab</p>
     <h1>Rezept-Link analysieren und passende Mahlzeiten finden</h1>
     <p>
-      Die Seite lädt echte Rezeptdaten aus dem Web. Wenn eine Rezeptseite Nährwerte nicht sauber ausliefert,
-      kannst du lokal einen OpenAI API-Key speichern und die fehlenden Big-7-Werte aus dem gelesenen Rezepttext ergänzen lassen.
+      Die Seite lädt echte Rezeptdaten aus dem Web. Da Suchseiten und Nährwerttabellen selten einheitlich aufgebaut sind,
+      inspiziert der AI-Fallback unstrukturierte Rezepttexte und schätzt fehlende Big-7-Werte aus Zutaten und Portionen.
     </p>
   </header>
 
@@ -33,7 +33,7 @@
             {{ importState() === 'loading' ? 'Lädt …' : 'Analysieren' }}
           </button>
         </div>
-        <label for="api-key">OpenAI API-Key für Fallback (nur lokal in diesem Browser gespeichert)</label>
+        <label for="api-key">OpenAI API-Key für unstrukturierte Suchseiten und fehlende Nährwerte (nur lokal gespeichert)</label>
         <input
           id="api-key"
           type="password"
@@ -137,7 +137,7 @@
             <a [href]="suggestion.url" target="_blank" rel="noreferrer">Öffnen</a>
           </article>
         } @empty {
-          <p class="empty-state">Starte die Suche, um pro Quelle einen live gelesenen Rezepttreffer zu erhalten.</p>
+          <p class="empty-state">Starte die Suche, um pro Quelle einen live gelesenen Rezepttreffer zu erhalten. Wenn eine Quelle kein fixes Format liefert, übernimmt AI die Link- und Nährwert-Interpretation.</p>
         }
       </div>
     </section>
