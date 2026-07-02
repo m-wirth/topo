@@ -243,3 +243,47 @@ button:disabled {
   border-color: #fecaca;
   color: #991b1b;
 }
+
+.feature-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.feature-tabs__link {
+  background: #ffffff;
+  border: 1px solid #99f6e4;
+  border-radius: 999px;
+  color: #0f766e;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+}
+
+.feature-tabs__link--active {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.examples {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: -0.25rem 0 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.chips span {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  color: #166534;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.35rem 0.65rem;
+}

@@ -20,8 +20,8 @@ export class Home {
     {
       eyebrow: 'Nutrition',
       title: 'Rezept zu Nutrition Seite',
-      description: 'Rezeptdaten werden später in strukturierte Nährwertinformationen übersetzt.',
-      route: '/nutrition',
+      description: 'Analysiere Rezept-Links oder wechsle zu separaten Rezeptvorschlägen nach Nährwertbudget.',
+      route: '/nutrition/analyze',
     },
     {
       eyebrow: 'Resources',

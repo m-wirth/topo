@@ -8,9 +8,22 @@ export const routes: Routes = [
   },
   {
     path: 'nutrition',
+    redirectTo: 'nutrition/analyze',
+    pathMatch: 'full',
+  },
+  {
+    path: 'nutrition/analyze',
     loadComponent: () =>
       import('./features/recipe-nutrition/recipe-nutrition').then((module) => module.RecipeNutrition),
-    title: 'Nutrition',
+    title: 'Nutrition Link Analyse',
+    data: { mode: 'analyze' },
+  },
+  {
+    path: 'nutrition/suggestions',
+    loadComponent: () =>
+      import('./features/recipe-nutrition/recipe-nutrition').then((module) => module.RecipeNutrition),
+    title: 'Nutrition Rezeptvorschläge',
+    data: { mode: 'suggestions' },
   },
   {
     path: 'resources/new',
