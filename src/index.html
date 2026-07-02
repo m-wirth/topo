@@ -6,6 +6,17 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Einstiegspunkt für Topo Hilfs-Apps">
+    <script>
+      (function () {
+        var redirectKey = 'topo.github-pages.redirect';
+        var redirectPath = window.sessionStorage.getItem(redirectKey);
+
+        if (redirectPath) {
+          window.sessionStorage.removeItem(redirectKey);
+          window.history.replaceState(null, '', redirectPath);
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>
