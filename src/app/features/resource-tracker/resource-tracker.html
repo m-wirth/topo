@@ -39,7 +39,7 @@
             </div>
             <ol>
               @for (description of resource.ratingDescriptions; track $index) {
-                <li><strong>{{ $index + 1 }}:</strong> {{ description }}</li>
+                <li>{{ description }}</li>
               }
             </ol>
           </article>
