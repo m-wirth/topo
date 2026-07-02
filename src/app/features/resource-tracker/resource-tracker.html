@@ -117,4 +117,11 @@
       </div>
     </article>
   </section>
+
+  @if (notification(); as message) {
+    <aside class="snackbar" [class.snackbar--error]="message.kind === 'error'" role="status" aria-live="polite">
+      <span>{{ message.text }}</span>
+      <button type="button" (click)="clearNotification()" aria-label="Dismiss message">Dismiss</button>
+    </aside>
+  }
 </section>

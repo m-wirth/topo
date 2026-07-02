@@ -30,6 +30,11 @@ export interface CalendarWeek {
 export type Rating = 1 | 2 | 3 | 4 | 5;
 type DailyRatings = Record<string, Record<string, Rating | undefined>>;
 
+export interface ResourceTrackerNotification {
+  readonly kind: 'success' | 'error';
+  readonly text: string;
+}
+
 export interface StoredResourceTrackerState {
   readonly resources?: readonly Resource[];
   readonly dailyRatings?: DailyRatings;
@@ -59,6 +64,7 @@ export class ResourceTrackerStore {
   readonly weekOffset = signal(0);
   readonly resources = signal<readonly Resource[]>(defaultResources);
   readonly dailyRatings = signal<DailyRatings>({});
+  readonly notification = signal<ResourceTrackerNotification | null>(null);
   readonly week = computed(() => this.createWeek(this.weekOffset()));
 
   constructor() {
@@ -113,6 +119,8 @@ export class ResourceTrackerStore {
       this.resources.update((resources) => [...resources, resource]);
     }
 
+    this.persistCurrentState();
+
     return resource;
   }
 
@@ -128,6 +136,7 @@ export class ResourceTrackerStore {
 
       return nextRatings;
     });
+    this.persistCurrentState();
   }
 
   previousWeek(): void {
@@ -154,6 +163,7 @@ export class ResourceTrackerStore {
         [resourceId]: ratings[dayKey]?.[resourceId] === rating ? undefined : rating,
       },
     }));
+    this.persistCurrentState();
   }
 
   weeklyAverage(resourceId: string): number | null {
@@ -185,6 +195,14 @@ export class ResourceTrackerStore {
 
   formatScore(score: number | null): string {
     return score === null ? '—' : score.toFixed(1);
+  }
+
+  showNotification(notification: ResourceTrackerNotification): void {
+    this.notification.set(notification);
+  }
+
+  clearNotification(): void {
+    this.notification.set(null);
   }
 
   private normalizeDraft(draft: ResourceDraft): Resource | null {
@@ -279,6 +297,13 @@ export class ResourceTrackerStore {
       storage.removeItem(storageKey);
       return null;
     }
+  }
+
+  private persistCurrentState(): void {
+    this.writeStoredState({
+      resources: this.resources(),
+      dailyRatings: this.dailyRatings(),
+    });
   }
 
   private writeStoredState(state: StoredResourceTrackerState): void {

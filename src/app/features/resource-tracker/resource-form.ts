@@ -23,15 +23,29 @@ export class ResourceForm {
   );
   protected readonly draft = signal<ResourceDraft>(this.store.createEmptyDraft(this.resource()));
   protected readonly isEditing = this.resourceId !== null;
+  protected readonly notification = this.store.notification;
 
-  protected saveResource(): void {
+  protected saveResource(event: Event): void {
+    event.preventDefault();
     const savedResource = this.store.saveResourceDraft(this.draft());
 
     if (!savedResource) {
+      this.store.showNotification({
+        kind: 'error',
+        text: 'Please complete all resource fields before saving.',
+      });
       return;
     }
 
+    this.store.showNotification({
+      kind: 'success',
+      text: this.isEditing ? 'Resource changes saved.' : 'Resource created and added to the tracker.',
+    });
     void this.router.navigate(['/resources']);
+  }
+
+  protected clearNotification(): void {
+    this.store.clearNotification();
   }
 
   protected updateDraftName(name: string): void {

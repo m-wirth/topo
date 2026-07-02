@@ -14,10 +14,16 @@ export class ResourceTracker {
   protected readonly ratingScale = ratingScale;
   protected readonly store = inject(ResourceTrackerStore);
   protected readonly resources = this.store.resources;
+  protected readonly notification = this.store.notification;
   protected readonly week = this.store.week;
 
   protected removeResource(resourceId: string): void {
     this.store.removeResource(resourceId);
+    this.store.showNotification({ kind: 'success', text: 'Resource removed.' });
+  }
+
+  protected clearNotification(): void {
+    this.store.clearNotification();
   }
 
   protected previousWeek(): void {
