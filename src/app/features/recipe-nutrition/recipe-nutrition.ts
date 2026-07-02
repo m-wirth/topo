@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 
 type Big7Key = 'energy' | 'fat' | 'saturatedFat' | 'carbohydrates' | 'sugars' | 'protein' | 'salt';
 type NutritionValue = Record<Big7Key, number>;
@@ -35,6 +35,7 @@ interface RecipeAnalysis {
   per100g: NutritionValue;
   perServing: NutritionValue;
   confidence: string;
+  dietCategories: string[];
   adaptations: DietAdaptation[];
 }
 
@@ -45,6 +46,7 @@ interface RecipeSuggestion {
   match: number;
   reason: string;
   nutrition: NutritionValue;
+  dietCategories: string[];
 }
 
 interface RecipeSource {
@@ -76,6 +78,7 @@ const defaultRemaining: NutritionValue = {
 const recipeSources: RecipeSource[] = [
   { name: 'Fooby', host: 'fooby.ch', searchUrl: (query) => `https://fooby.ch/de/rezepte.html?query=${encodeURIComponent(query)}` },
   { name: 'Migusto', host: 'migusto.migros.ch', searchUrl: (query) => `https://migusto.migros.ch/de/suche.html?query=${encodeURIComponent(query)}` },
+  { name: 'Swissmilk', host: 'swissmilk.ch', searchUrl: (query) => `https://www.swissmilk.ch/de/suche/?query=${encodeURIComponent(query)}` },
   { name: 'Betty Bossi', host: 'bettybossi.ch', searchUrl: (query) => `https://www.bettybossi.ch/de/Rezept/List?query=${encodeURIComponent(query)}` },
 ];
 
@@ -91,13 +94,16 @@ const emptyNutrition: NutritionValue = {
 
 @Component({
   selector: 'app-recipe-nutrition',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './recipe-nutrition.html',
   styleUrl: './recipe-nutrition.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeNutrition {
+  private readonly route = inject(ActivatedRoute);
+
   protected readonly nutrients = nutrients;
+  protected readonly mode = signal<'analyze' | 'suggestions'>(this.route.snapshot.data['mode'] === 'suggestions' ? 'suggestions' : 'analyze');
   protected readonly recipeUrl = signal('');
   protected readonly apiKey = signal(localStorage.getItem('topo.openaiApiKey') ?? '');
   protected readonly analysis = signal<RecipeAnalysis | null>(null);
@@ -123,7 +129,7 @@ export class RecipeNutrition {
       const parsed = this.extractRecipeData(markdown, url);
       const completed = await this.ensureNutrition(parsed, markdown, url);
 
-      this.analysis.set({ ...completed, adaptations: this.createAdaptations(completed.perServing) });
+      this.analysis.set({ ...completed, dietCategories: this.classifyDiet(completed.perServing), adaptations: this.createAdaptations(completed.perServing) });
       this.importState.set('success');
       this.importMessage.set('Live-Daten wurden aus der Rezeptseite gelesen; fehlende oder unstrukturierte Werte wurden bei Bedarf per AI geschätzt.');
     } catch (error) {
@@ -186,11 +192,25 @@ export class RecipeNutrition {
   }
 
   private async fetchReadablePage(url: string): Promise<string> {
-    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-    if (!response.ok) throw new Error(`Die Seite konnte nicht gelesen werden (${response.status}).`);
-    const text = await response.text();
-    if (text.length < 200) throw new Error('Die Rezeptseite lieferte zu wenig auswertbaren Inhalt.');
-    return text;
+    const endpoints = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://r.jina.ai/${url}`,
+    ];
+    const errors: string[] = [];
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`${response.status}`);
+        const text = await response.text();
+        if (text.length >= 200) return text;
+        errors.push('zu wenig Inhalt');
+      } catch (error) {
+        errors.push(this.errorMessage(error));
+      }
+    }
+
+    throw new Error(`Die Rezeptseite konnte nicht gelesen werden. Versuchte Reader: ${errors.join(', ')}`);
   }
 
   private extractRecipeData(markdown: string, url: string, source = this.detectSource(url)): RecipeAnalysis {
@@ -207,6 +227,7 @@ export class RecipeNutrition {
       per100g,
       perServing,
       confidence: this.hasCompleteNutrition(perServing) ? 'aus Rezeptseite gelesen' : 'unvollständig gelesen',
+      dietCategories: this.classifyDiet(perServing),
       adaptations: [],
     };
   }
@@ -292,6 +313,7 @@ ${markdown.slice(0, 10000)}`;
       perServing: this.normalizeNutrition(ai.perServing ?? parsed.perServing),
       per100g: this.normalizeNutrition(ai.per100g ?? parsed.per100g),
       confidence: 'mit AI aus unstrukturiertem Rezeptinhalt geschätzt',
+      dietCategories: this.classifyDiet(this.normalizeNutrition(ai.perServing ?? parsed.perServing)),
     };
   }
 
@@ -329,6 +351,7 @@ ${markdown.slice(0, 10000)}`;
       match,
       reason: `Live gelesene Portion passt am besten zu ${this.bestMatchingNutrient(recipe.perServing, target)}.`,
       nutrition: recipe.perServing,
+      dietCategories: this.classifyDiet(recipe.perServing),
     };
   }
 
@@ -339,6 +362,17 @@ ${markdown.slice(0, 10000)}`;
       { goal: 'Vegetarisch', description: 'Fleisch/Fisch durch pflanzliche Proteinträger austauschen.', changes: ['Poulet oder Fisch durch Tofu, Tempeh, Linsen oder Kichererbsen ersetzen.', 'Umami mit Pilzen, Sojasauce oder gerösteten Nüssen aufbauen.'] },
       { goal: 'Herzfreundlich', description: 'Salz und gesättigte Fettsäuren senken.', changes: ['Salz über Kräuter, Zitrone und Gewürze ersetzen.', nutrition.saturatedFat > 12 ? 'Rahm, Butter oder Käse durch Joghurt, Olivenöl oder Nuss-Topping ersetzen.' : 'Ungesättigte Fettquellen priorisieren und Käse als Akzent nutzen.'] },
     ];
+  }
+
+
+  private classifyDiet(nutrition: NutritionValue): string[] {
+    const categories: string[] = [];
+    if (nutrition.protein >= 30) categories.push('High Protein');
+    if (nutrition.carbohydrates <= 30) categories.push('Low Carb');
+    if (nutrition.fat <= 15 && nutrition.energy <= 500) categories.push('Leicht / fettarm');
+    if (nutrition.salt <= 1.5 && nutrition.saturatedFat <= 8) categories.push('Herzfreundlich');
+    if (nutrition.energy <= 450) categories.push('Kalorienbewusst');
+    return categories.length > 0 ? categories : ['Ausgewogen'];
   }
 
   private createSearchQuery(target: NutritionValue): string {
