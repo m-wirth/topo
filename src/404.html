@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>Topo Apps</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <script>
+      (function () {
+        var repositoryBasePath = '/topo/';
+        var targetPath = window.location.pathname + window.location.search + window.location.hash;
+
+        window.sessionStorage.setItem('topo.github-pages.redirect', targetPath);
+        window.location.replace(window.location.origin + repositoryBasePath);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to Topo Apps…</p>
+  </body>
+</html>

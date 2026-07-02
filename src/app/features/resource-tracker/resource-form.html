@@ -1,0 +1,80 @@
+<section class="tracker" aria-labelledby="resource-form-title">
+  <header class="tracker__header">
+    <a routerLink="/resources" class="back-link">Back to resources</a>
+    <p class="eyebrow">Resources</p>
+    <h1 id="resource-form-title">{{ isEditing ? 'Edit resource' : 'Add a resource' }}</h1>
+    <p class="intro">
+      {{ isEditing ? 'Update the resource details and save to return to the tracker overview.' : 'Create a new resource and save it to return to the tracker overview.' }}
+    </p>
+  </header>
+
+  @if (isEditing && !resource()) {
+    <section class="empty-state" aria-live="polite">
+      This resource could not be found. Go back to the tracker and choose another resource.
+    </section>
+  } @else {
+    <section class="resource-editor" aria-labelledby="resource-editor-title">
+      <div>
+        <p class="eyebrow">Setup</p>
+        <h2 id="resource-editor-title">{{ isEditing ? 'Edit resource details' : 'New resource details' }}</h2>
+        <p>
+          A resource has a name, a short description and custom text for each rating step.
+        </p>
+      </div>
+
+      <form class="resource-form" (submit)="saveResource($event)">
+        <label>
+          Resource name
+          <input
+            name="resource-name"
+            type="text"
+            [ngModel]="draft().name"
+            (ngModelChange)="updateDraftName($event)"
+            placeholder="e.g. Sleep"
+            required
+          />
+        </label>
+
+        <label>
+          Description
+          <textarea
+            name="resource-description"
+            rows="3"
+            [ngModel]="draft().description"
+            (ngModelChange)="updateDraftDescription($event)"
+            placeholder="What does this resource measure?"
+            required
+          ></textarea>
+        </label>
+
+        <div class="rating-descriptions" aria-label="Rating descriptions">
+          @for (rating of ratingScale; track rating) {
+            <label>
+              Rating {{ rating }} description
+              <input
+                [name]="'rating-description-' + rating"
+                type="text"
+                [ngModel]="draft().ratingDescriptions[rating - 1]"
+                (ngModelChange)="updateDraftRatingDescription(rating - 1, $event)"
+                [placeholder]="rating === 1 ? 'Weakest level' : rating === 5 ? 'Best level' : 'Describe this level'"
+                required
+              />
+            </label>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">{{ isEditing ? 'Save changes' : 'Create resource' }}</button>
+          <a routerLink="/resources" class="button-link">Cancel</a>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (notification(); as message) {
+    <aside class="snackbar" [class.snackbar--error]="message.kind === 'error'" role="status" aria-live="polite">
+      <span>{{ message.text }}</span>
+      <button type="button" (click)="clearNotification()" aria-label="Dismiss message">Dismiss</button>
+    </aside>
+  }
+</section>
