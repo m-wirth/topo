@@ -1,0 +1,145 @@
+<section class="nutrition-page">
+  <a class="back-link" routerLink="/">← Zurück zum Dashboard</a>
+
+  <header class="hero">
+    <p class="eyebrow">Nutrition Lab</p>
+    <h1>Rezept-Link analysieren und passende Mahlzeiten finden</h1>
+    <p>
+      Die Seite lädt echte Rezeptdaten aus dem Web. Wenn eine Rezeptseite Nährwerte nicht sauber ausliefert,
+      kannst du lokal einen OpenAI API-Key speichern und die fehlenden Big-7-Werte aus dem gelesenen Rezepttext ergänzen lassen.
+    </p>
+  </header>
+
+  <div class="grid">
+    <section class="card card--wide">
+      <div class="section-heading">
+        <p class="eyebrow">1 · Live Link Import</p>
+        <h2>Rezept einfügen</h2>
+      </div>
+
+      <form class="link-form" (submit)="analyzeRecipe($event)">
+        <label for="recipe-url">Rezept URL</label>
+        <div class="input-row">
+          <input
+            id="recipe-url"
+            type="url"
+            inputmode="url"
+            placeholder="https://fooby.ch/... oder https://migusto.migros.ch/..."
+            [ngModel]="recipeUrl()"
+            (ngModelChange)="updateRecipeUrl($event)"
+            name="recipeUrl"
+          />
+          <button type="submit" [disabled]="importState() === 'loading'">
+            {{ importState() === 'loading' ? 'Lädt …' : 'Analysieren' }}
+          </button>
+        </div>
+        <label for="api-key">OpenAI API-Key für Fallback (nur lokal in diesem Browser gespeichert)</label>
+        <input
+          id="api-key"
+          type="password"
+          autocomplete="off"
+          placeholder="sk-..."
+          [ngModel]="apiKey()"
+          (ngModelChange)="updateApiKey($event)"
+          name="apiKey"
+        />
+      </form>
+
+      @if (importMessage()) {
+        <p class="status" [class.status--error]="importState() === 'error'">{{ importMessage() }}</p>
+      }
+
+      @if (analysis(); as recipe) {
+        <article class="analysis">
+          <div>
+            <p class="eyebrow">{{ recipe.source }} · {{ recipe.confidence }}</p>
+            <h3>{{ recipe.title }}</h3>
+            <p>{{ recipe.servingSize }} g Portionsgrösse · <a [href]="recipe.url" target="_blank" rel="noreferrer">Original öffnen</a></p>
+          </div>
+
+          <div class="nutrition-table" role="table" aria-label="Big 7 Nährwerte">
+            <div class="table-row table-row--head" role="row">
+              <span>Nährwert</span>
+              <span>pro 100 g</span>
+              <span>pro Portion</span>
+            </div>
+            @for (nutrient of nutrients; track nutrient.key) {
+              <div class="table-row" role="row">
+                <span>{{ nutrient.label }}</span>
+                <strong>{{ valueFor(recipe.per100g, nutrient) }} {{ nutrient.unit }}</strong>
+                <strong>{{ valueFor(recipe.perServing, nutrient) }} {{ nutrient.unit }}</strong>
+              </div>
+            }
+          </div>
+
+          <div class="adaptations">
+            @for (adaptation of recipe.adaptations; track adaptation.goal) {
+              <article>
+                <h4>{{ adaptation.goal }}</h4>
+                <p>{{ adaptation.description }}</p>
+                <ul>
+                  @for (change of adaptation.changes; track change) {
+                    <li>{{ change }}</li>
+                  }
+                </ul>
+              </article>
+            }
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <p class="eyebrow">2 · Tagesbudget</p>
+        <h2>Was darfst du noch essen?</h2>
+      </div>
+      <form class="sliders" (submit)="searchRecipes($event)">
+        @for (nutrient of nutrients; track nutrient.key) {
+          <label class="slider">
+            <span>{{ nutrient.label }}</span>
+            <strong>{{ valueFor(remaining(), nutrient) }} {{ nutrient.unit }}</strong>
+            <input
+              type="range"
+              min="0"
+              [max]="nutrient.max"
+              [step]="nutrient.step"
+              [ngModel]="remaining()[nutrient.key]"
+              (ngModelChange)="updateRemaining(nutrient.key, $event)"
+              [name]="nutrient.key"
+            />
+          </label>
+        }
+        <button type="submit" [disabled]="suggestionState() === 'loading'">
+          {{ suggestionState() === 'loading' ? 'Suche läuft …' : 'Echte Rezepte suchen' }}
+        </button>
+      </form>
+      <p class="query">Suchprofil: {{ queryFromRemaining() }}</p>
+    </section>
+
+    <section class="card card--wide">
+      <div class="section-heading">
+        <p class="eyebrow">Fooby · Migusto · Betty Bossi</p>
+        <h2>Live-Rezeptvorschläge nach Nährwert-Match</h2>
+      </div>
+      @if (suggestionMessage()) {
+        <p class="status" [class.status--error]="suggestionState() === 'error'">{{ suggestionMessage() }}</p>
+      }
+      <div class="suggestions">
+        @for (suggestion of suggestions(); track suggestion.url) {
+          <article class="suggestion">
+            <div>
+              <p class="eyebrow">{{ suggestion.source }}</p>
+              <h3>{{ suggestion.title }}</h3>
+              <p>{{ suggestion.reason }}</p>
+            </div>
+            <strong>{{ suggestion.match }}%</strong>
+            <a [href]="suggestion.url" target="_blank" rel="noreferrer">Öffnen</a>
+          </article>
+        } @empty {
+          <p class="empty-state">Starte die Suche, um pro Quelle einen live gelesenen Rezepttreffer zu erhalten.</p>
+        }
+      </div>
+    </section>
+  </div>
+</section>
