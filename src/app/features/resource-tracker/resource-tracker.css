@@ -341,8 +341,6 @@ button:focus-visible {
 }
 
 .rating-level--1 span,
-.week-summary dd.rating-level--1,
-.rating-button.rating-level--1,
 .rating-button.rating-level--1.rating-button--active,
 .rating-button.rating-level--1.rating-button--active:hover,
 .rating-button.rating-level--1.rating-button--active:focus-visible {
@@ -351,8 +349,6 @@ button:focus-visible {
 }
 
 .rating-level--2 span,
-.week-summary dd.rating-level--2,
-.rating-button.rating-level--2,
 .rating-button.rating-level--2.rating-button--active,
 .rating-button.rating-level--2.rating-button--active:hover,
 .rating-button.rating-level--2.rating-button--active:focus-visible {
@@ -361,8 +357,6 @@ button:focus-visible {
 }
 
 .rating-level--3 span,
-.week-summary dd.rating-level--3,
-.rating-button.rating-level--3,
 .rating-button.rating-level--3.rating-button--active,
 .rating-button.rating-level--3.rating-button--active:hover,
 .rating-button.rating-level--3.rating-button--active:focus-visible {
@@ -371,8 +365,6 @@ button:focus-visible {
 }
 
 .rating-level--4 span,
-.week-summary dd.rating-level--4,
-.rating-button.rating-level--4,
 .rating-button.rating-level--4.rating-button--active,
 .rating-button.rating-level--4.rating-button--active:hover,
 .rating-button.rating-level--4.rating-button--active:focus-visible {
@@ -395,6 +387,10 @@ button:focus-visible {
 .rating-button.rating-level--2,
 .rating-button.rating-level--3,
 .rating-button.rating-level--4 {
+  color: #334155;
+}
+
+.rating-button.rating-button--active {
   color: #ffffff;
 }
 
