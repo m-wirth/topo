@@ -100,18 +100,18 @@
           </div>
         </div>
 
-        <aside class="week-summary" aria-label="Weekly averages">
+        <aside class="week-summary" aria-label="Weekly averages" [style.background]="weeklySummaryBackground(weeklyOverallScore())">
           <h3>Week summary</h3>
           <dl>
             @for (resource of resources(); track resource.id) {
               <div>
                 <dt>{{ resource.name }}</dt>
-                <dd [class]="ratingClass(weeklyAverage(resource.id))">{{ formatScore(weeklyAverage(resource.id)) }}</dd>
+                <dd [class]="ratingClass(weeklyAverage(resource.id))" [style.background-color]="scoreBackground(weeklyAverage(resource.id))">{{ formatScore(weeklyAverage(resource.id)) }}</dd>
               </div>
             }
             <div class="overall-score">
               <dt>Overall</dt>
-              <dd [class]="ratingClass(weeklyOverallScore())">{{ formatScore(weeklyOverallScore()) }}</dd>
+              <dd [class]="ratingClass(weeklyOverallScore())" [style.background-color]="scoreBackground(weeklyOverallScore())">{{ formatScore(weeklyOverallScore()) }}</dd>
             </div>
           </dl>
 
