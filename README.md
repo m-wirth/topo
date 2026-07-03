@@ -34,4 +34,4 @@ Für GitHub Pages wird mit dem Repository-Basispfad gebaut:
 npm run build:pages
 ```
 
-Die GitHub-Actions-Workflowdatei `.github/workflows/pages.yml` baut die App und veröffentlicht `dist/topo/browser` auf GitHub Pages.
+Die GitHub-Actions-Workflowdatei `.github/workflows/pages.yml` baut die App und veröffentlicht `dist/topo/browser` auf GitHub Pages. In den Repository-Einstellungen muss GitHub Pages als Quelle **GitHub Actions** verwenden; wenn stattdessen `main` / `/ (root)` ausgewählt ist, rendert GitHub Pages die `README.md` statt des gebauten Angular-Artefakts.

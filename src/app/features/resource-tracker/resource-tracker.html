@@ -113,6 +113,17 @@
               <dd>{{ formatScore(weeklyOverallScore()) }}</dd>
             </div>
           </dl>
+
+          <label class="week-comment">
+            Week comment
+            <textarea
+              name="week-comment"
+              rows="5"
+              [ngModel]="getWeeklyComment(week().key)"
+              (ngModelChange)="setWeeklyComment(week().key, $event)"
+              placeholder="Add what happened this week or clarify any unusual scores."
+            ></textarea>
+          </label>
         </aside>
       </div>
     </article>

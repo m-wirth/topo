@@ -33,6 +33,9 @@ jobs:
         run: npm install
       - name: Build static Angular app
         run: npm run build:pages
+      - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
       - name: Upload GitHub Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

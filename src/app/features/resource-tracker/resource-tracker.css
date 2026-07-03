@@ -368,6 +368,24 @@ button:focus-visible {
   color: #ffffff;
 }
 
+.week-comment {
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 1.25rem;
+}
+
+.week-comment textarea {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #0f172a;
+  min-height: 8rem;
+  resize: vertical;
+  width: 100%;
+}
+
+.week-comment textarea::placeholder {
+  color: #64748b;
+}
+
 @media (max-width: 72rem) {
   .tracker {
     padding-inline: clamp(1rem, 4vw, 1.5rem);
