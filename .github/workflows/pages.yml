@@ -13,8 +13,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -36,10 +36,11 @@ jobs:
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
-      - name: Verify GitHub Pages output
+      - name: Prepare GitHub Pages output
         run: |
           test -f dist/topo/browser/index.html
           test -f dist/topo/browser/404.html
+          touch dist/topo/browser/.nojekyll
       - name: Upload GitHub Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
