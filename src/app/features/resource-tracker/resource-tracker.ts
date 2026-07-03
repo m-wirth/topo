@@ -66,4 +66,14 @@ export class ResourceTracker {
   protected formatScore(score: number | null): string {
     return this.store.formatScore(score);
   }
+
+  protected ratingClass(score: Rating | number | null | undefined): string {
+    const severity = this.store.ratingSeverity(score);
+
+    return severity === null ? 'rating-level--empty' : `rating-level--${severity}`;
+  }
+
+  protected ratingLabel(score: Rating | number | null | undefined): string {
+    return this.store.ratingSeverityLabel(score);
+  }
 }

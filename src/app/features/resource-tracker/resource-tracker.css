@@ -202,7 +202,26 @@ button:focus-visible {
   display: grid;
   gap: 0.4rem;
   margin: 1rem 0 0;
-  padding-left: 1.2rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.resource-card li {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.resource-card li span {
+  align-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  flex: 0 0 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 900;
+  height: 1.5rem;
+  justify-content: center;
 }
 
 .week-card {
@@ -294,7 +313,7 @@ button:focus-visible {
   background: #f8fafc;
   display: grid;
   gap: 0.25rem;
-  grid-template-columns: repeat(5, minmax(1.75rem, 1fr));
+  grid-template-columns: repeat(4, minmax(1.75rem, 1fr));
 }
 
 .rating-button {
@@ -317,8 +336,65 @@ button:focus-visible {
 .rating-button--active,
 .rating-button--active:hover,
 .rating-button--active:focus-visible {
-  background: #0f766e;
-  border-color: #0f766e;
+  box-shadow: inset 0 0 0 2px #ffffff, 0 0 0 2px rgba(15, 23, 42, 0.14);
+  color: #ffffff;
+}
+
+.rating-level--1 span,
+.week-summary dd.rating-level--1,
+.rating-button.rating-level--1,
+.rating-button.rating-level--1.rating-button--active,
+.rating-button.rating-level--1.rating-button--active:hover,
+.rating-button.rating-level--1.rating-button--active:focus-visible {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.rating-level--2 span,
+.week-summary dd.rating-level--2,
+.rating-button.rating-level--2,
+.rating-button.rating-level--2.rating-button--active,
+.rating-button.rating-level--2.rating-button--active:hover,
+.rating-button.rating-level--2.rating-button--active:focus-visible {
+  background: #f97316;
+  border-color: #f97316;
+}
+
+.rating-level--3 span,
+.week-summary dd.rating-level--3,
+.rating-button.rating-level--3,
+.rating-button.rating-level--3.rating-button--active,
+.rating-button.rating-level--3.rating-button--active:hover,
+.rating-button.rating-level--3.rating-button--active:focus-visible {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.rating-level--4 span,
+.week-summary dd.rating-level--4,
+.rating-button.rating-level--4,
+.rating-button.rating-level--4.rating-button--active,
+.rating-button.rating-level--4.rating-button--active:hover,
+.rating-button.rating-level--4.rating-button--active:focus-visible {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.week-summary dd.rating-level--1,
+.week-summary dd.rating-level--2,
+.week-summary dd.rating-level--3,
+.week-summary dd.rating-level--4 {
+  border-radius: 999px;
+  color: #ffffff;
+  min-width: 3.6rem;
+  padding: 0.25rem 0.65rem;
+  text-align: center;
+}
+
+.rating-button.rating-level--1,
+.rating-button.rating-level--2,
+.rating-button.rating-level--3,
+.rating-button.rating-level--4 {
   color: #ffffff;
 }
 
@@ -422,7 +498,7 @@ button:focus-visible {
   }
 
   .rating-cell {
-    grid-template-columns: repeat(5, minmax(1.45rem, 1fr));
+    grid-template-columns: repeat(4, minmax(1.45rem, 1fr));
   }
 }
 
