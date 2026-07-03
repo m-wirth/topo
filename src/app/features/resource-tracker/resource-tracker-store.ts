@@ -29,6 +29,7 @@ export interface CalendarWeek {
 
 export type Rating = 1 | 2 | 3 | 4 | 5;
 type DailyRatings = Record<string, Record<string, Rating | undefined>>;
+type WeeklyComments = Record<string, string | undefined>;
 
 export interface ResourceTrackerNotification {
   readonly kind: 'success' | 'error';
@@ -38,6 +39,7 @@ export interface ResourceTrackerNotification {
 export interface StoredResourceTrackerState {
   readonly resources?: readonly Resource[];
   readonly dailyRatings?: DailyRatings;
+  readonly weeklyComments?: WeeklyComments;
 }
 
 export const ratingScale: readonly Rating[] = [1, 2, 3, 4, 5];
@@ -64,6 +66,7 @@ export class ResourceTrackerStore {
   readonly weekOffset = signal(0);
   readonly resources = signal<readonly Resource[]>(defaultResources);
   readonly dailyRatings = signal<DailyRatings>({});
+  readonly weeklyComments = signal<WeeklyComments>({});
   readonly notification = signal<ResourceTrackerNotification | null>(null);
   readonly week = computed(() => this.createWeek(this.weekOffset()));
 
@@ -78,10 +81,15 @@ export class ResourceTrackerStore {
       this.dailyRatings.set(storedState.dailyRatings);
     }
 
+    if (storedState?.weeklyComments) {
+      this.weeklyComments.set(storedState.weeklyComments);
+    }
+
     effect(() => {
       this.writeStoredState({
         resources: this.resources(),
         dailyRatings: this.dailyRatings(),
+        weeklyComments: this.weeklyComments(),
       });
     });
   }
@@ -163,6 +171,27 @@ export class ResourceTrackerStore {
         [resourceId]: ratings[dayKey]?.[resourceId] === rating ? undefined : rating,
       },
     }));
+    this.persistCurrentState();
+  }
+
+  getWeeklyComment(weekKey: string): string {
+    return this.weeklyComments()[weekKey] ?? '';
+  }
+
+  setWeeklyComment(weekKey: string, comment: string): void {
+    const trimmedComment = comment.trim();
+
+    this.weeklyComments.update((comments) => {
+      if (!trimmedComment) {
+        const { [weekKey]: _removedComment, ...remainingComments } = comments;
+        return remainingComments;
+      }
+
+      return {
+        ...comments,
+        [weekKey]: comment,
+      };
+    });
     this.persistCurrentState();
   }
 
@@ -303,6 +332,7 @@ export class ResourceTrackerStore {
     this.writeStoredState({
       resources: this.resources(),
       dailyRatings: this.dailyRatings(),
+      weeklyComments: this.weeklyComments(),
     });
   }
 
