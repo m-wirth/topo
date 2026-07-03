@@ -84,6 +84,10 @@ export class ResourceTrackerStore {
       this.weeklyComments.set(storedState.weeklyComments);
     }
 
+    if (storedState?.weeklyComments) {
+      this.weeklyComments.set(storedState.weeklyComments);
+    }
+
     effect(() => {
       this.writeStoredState({
         resources: this.resources(),
