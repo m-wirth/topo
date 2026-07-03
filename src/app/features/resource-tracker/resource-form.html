@@ -56,7 +56,7 @@
                 type="text"
                 [ngModel]="draft().ratingDescriptions[rating - 1]"
                 (ngModelChange)="updateDraftRatingDescription(rating - 1, $event)"
-                [placeholder]="rating === 1 ? 'Weakest level' : rating === 5 ? 'Best level' : 'Describe this level'"
+                [placeholder]="rating === 1 ? 'Severe level' : rating === 4 ? 'Perfect level' : 'Describe this level'"
                 required
               />
             </label>

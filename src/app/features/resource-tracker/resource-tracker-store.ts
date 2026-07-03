@@ -4,14 +4,14 @@ export interface Resource {
   readonly id: string;
   readonly name: string;
   readonly description: string;
-  readonly ratingDescriptions: readonly [string, string, string, string, string];
+  readonly ratingDescriptions: readonly [string, string, string, string];
 }
 
 export interface ResourceDraft {
   id: string | null;
   name: string;
   description: string;
-  ratingDescriptions: [string, string, string, string, string];
+  ratingDescriptions: [string, string, string, string];
 }
 
 export interface CalendarDay {
@@ -27,7 +27,7 @@ export interface CalendarWeek {
   readonly days: readonly CalendarDay[];
 }
 
-export type Rating = 1 | 2 | 3 | 4 | 5;
+export type Rating = 1 | 2 | 3 | 4;
 type DailyRatings = Record<string, Record<string, Rating | undefined>>;
 type WeeklyComments = Record<string, string | undefined>;
 
@@ -42,7 +42,7 @@ export interface StoredResourceTrackerState {
   readonly weeklyComments?: WeeklyComments;
 }
 
-export const ratingScale: readonly Rating[] = [1, 2, 3, 4, 5];
+export const ratingScale: readonly Rating[] = [1, 2, 3, 4];
 const weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const shortWeekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const storageKey = 'topo.resource-tracker.v1';
@@ -55,7 +55,6 @@ const defaultResources: readonly Resource[] = [
       'Slept less than 5 hours a night.',
       'Slept less than 6 hours a night.',
       'Slept around 7 hours.',
-      'Slept around 7.5 hours.',
       'Slept 8+ hours or woke up fully recovered.',
     ],
   },
@@ -74,11 +73,11 @@ export class ResourceTrackerStore {
     const storedState = this.readStoredState();
 
     if (storedState?.resources) {
-      this.resources.set(storedState.resources);
+      this.resources.set(storedState.resources.map((resource) => this.normalizeStoredResource(resource)));
     }
 
     if (storedState?.dailyRatings) {
-      this.dailyRatings.set(storedState.dailyRatings);
+      this.dailyRatings.set(this.normalizeStoredDailyRatings(storedState.dailyRatings));
     }
 
     if (storedState?.weeklyComments) {
@@ -106,7 +105,7 @@ export class ResourceTrackerStore {
           id: null,
           name: '',
           description: '',
-          ratingDescriptions: ['', '', '', '', ''],
+          ratingDescriptions: ['', '', '', ''],
         };
   }
 
@@ -226,12 +225,61 @@ export class ResourceTrackerStore {
     return score === null ? '—' : score.toFixed(1);
   }
 
+  ratingSeverity(score: number | null | undefined): Rating | null {
+    if (score === null || score === undefined) {
+      return null;
+    }
+
+    return Math.min(4, Math.max(1, Math.round(score))) as Rating;
+  }
+
+  ratingSeverityLabel(score: number | null | undefined): string {
+    switch (this.ratingSeverity(score)) {
+      case 1:
+        return 'severe';
+      case 2:
+        return 'insufficient';
+      case 3:
+        return 'sufficient';
+      case 4:
+        return 'perfect';
+      default:
+        return 'unrated';
+    }
+  }
+
   showNotification(notification: ResourceTrackerNotification): void {
     this.notification.set(notification);
   }
 
   clearNotification(): void {
     this.notification.set(null);
+  }
+
+  private normalizeStoredResource(resource: Resource): Resource {
+    return {
+      ...resource,
+      ratingDescriptions: [
+        resource.ratingDescriptions[0] ?? 'Severe level.',
+        resource.ratingDescriptions[1] ?? 'Insufficient level.',
+        resource.ratingDescriptions[2] ?? 'Sufficient level.',
+        resource.ratingDescriptions[3] ?? 'Perfect level.',
+      ],
+    };
+  }
+
+  private normalizeStoredDailyRatings(ratings: DailyRatings): DailyRatings {
+    const normalizedRatings: DailyRatings = {};
+
+    Object.entries(ratings).forEach(([dayKey, resourceRatings]) => {
+      normalizedRatings[dayKey] = {};
+
+      Object.entries(resourceRatings).forEach(([resourceId, rating]) => {
+        normalizedRatings[dayKey][resourceId] = rating === undefined ? undefined : this.ratingSeverity(rating) ?? undefined;
+      });
+    });
+
+    return normalizedRatings;
   }
 
   private normalizeDraft(draft: ResourceDraft): Resource | null {

@@ -4,7 +4,7 @@
     <p class="eyebrow">Resources</p>
     <h1 id="tracker-title">Resource Tracker</h1>
     <p class="intro">
-      Add the resources that matter to you, tap a number from 1 to 5 to score each day, and review
+      Add the resources that matter to you, tap a color-coded number from 1 to 4 to score each day, and review
       the weekly averages. Resources and ratings are saved in this browser for now.
     </p>
   </header>
@@ -39,7 +39,7 @@
             </div>
             <ol>
               @for (description of resource.ratingDescriptions; track $index) {
-                <li>{{ description }}</li>
+                <li [class]="ratingClass($index + 1)"><span>{{ $index + 1 }}</span>{{ description }}</li>
               }
             </ol>
           </article>
@@ -83,9 +83,10 @@
                     @for (rating of ratingScale; track rating) {
                       <button
                         type="button"
-                        class="rating-button"
+                        [class]="'rating-button ' + ratingClass(rating)"
                         [class.rating-button--active]="getRating(day.key, resource.id) === rating"
                         [attr.aria-pressed]="getRating(day.key, resource.id) === rating"
+                        [attr.aria-label]="resource.name + ' rating ' + rating + ' (' + ratingLabel(rating) + ') on ' + day.weekday"
                         [title]="resource.ratingDescriptions[rating - 1]"
                         (click)="setRating(day.key, resource.id, rating)"
                       >
@@ -105,12 +106,12 @@
             @for (resource of resources(); track resource.id) {
               <div>
                 <dt>{{ resource.name }}</dt>
-                <dd>{{ formatScore(weeklyAverage(resource.id)) }}</dd>
+                <dd [class]="ratingClass(weeklyAverage(resource.id))">{{ formatScore(weeklyAverage(resource.id)) }}</dd>
               </div>
             }
             <div class="overall-score">
               <dt>Overall</dt>
-              <dd>{{ formatScore(weeklyOverallScore()) }}</dd>
+              <dd [class]="ratingClass(weeklyOverallScore())">{{ formatScore(weeklyOverallScore()) }}</dd>
             </div>
           </dl>
 
