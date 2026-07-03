@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Rating, ratingScale, ResourceTrackerStore } from './resource-tracker-store';
 
 @Component({
   selector: 'app-resource-tracker',
-  imports: [RouterLink],
+  imports: [FormsModule, RouterLink],
   templateUrl: './resource-tracker.html',
   styleUrl: './resource-tracker.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +45,14 @@ export class ResourceTracker {
 
   protected setRating(dayKey: string, resourceId: string, rating: Rating): void {
     this.store.setRating(dayKey, resourceId, rating);
+  }
+
+  protected getWeeklyComment(weekKey: string): string {
+    return this.store.getWeeklyComment(weekKey);
+  }
+
+  protected setWeeklyComment(weekKey: string, comment: string): void {
+    this.store.setWeeklyComment(weekKey, comment);
   }
 
   protected weeklyAverage(resourceId: string): number | null {
