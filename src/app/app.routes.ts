@@ -25,6 +25,12 @@ export const routes: Routes = [
     title: 'Nutrition Rezeptvorschläge',
     data: { mode: 'suggestions' },
   },
+
+  {
+    path: 'recipes',
+    loadComponent: () => import('./features/world-recipes/world-recipes').then((module) => module.WorldRecipes),
+    title: 'Welt-Rezeptsammlung',
+  },
   {
     path: 'resources/new',
     loadComponent: () => import('./features/resource-tracker/resource-form').then((module) => module.ResourceForm),

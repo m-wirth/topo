@@ -24,6 +24,12 @@ export class Home {
       route: '/nutrition/analyze',
     },
     {
+      eyebrow: 'Recipes',
+      title: 'Welt-Rezeptsammlung',
+      description: 'Wähle ein Land auf der Weltkarte und öffne Rezepte aus Italien, Thailand, Indien, Japan oder Griechenland im Lesermodus.',
+      route: '/recipes',
+    },
+    {
       eyebrow: 'Resources',
       title: 'Ressourcen Tracker',
       description: 'Ressourcen, Kapazitäten und Status werden später zentral nachvollziehbar.',
