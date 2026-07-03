@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: 24.15.0
           package-manager-cache: false
       - name: Install dependencies
         run: npm install
@@ -36,9 +36,13 @@ jobs:
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
+      - name: Verify GitHub Pages output
+        run: |
+          test -f dist/topo/browser/index.html
+          test -f dist/topo/browser/404.html
       - name: Upload GitHub Pages artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist/topo/browser
   deploy:
