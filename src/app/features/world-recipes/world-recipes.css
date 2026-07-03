@@ -1,0 +1,33 @@
+.recipes-page { margin: 0 auto; max-width: 76rem; padding: 2rem 1.5rem 5rem; }
+.back-link { color: #0f766e; font-weight: 800; text-decoration: none; }
+.hero { padding: 3rem 0 2rem; }
+.eyebrow { color: #0f766e; font-size: .78rem; font-weight: 900; letter-spacing: .14em; margin: 0 0 .75rem; text-transform: uppercase; }
+h1 { color: #0f172a; font-size: clamp(2.4rem, 6vw, 5rem); line-height: .95; margin: 0; max-width: 12ch; }
+.hero p:not(.eyebrow), .section-heading p, .recipe-card p { color: #64748b; line-height: 1.65; }
+.layout { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1.15fr) minmax(20rem, .85fr); }
+.map-card, .recipe-list, .recipe-card { background: rgba(255,255,255,.88); border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 1.5rem 4rem rgba(15,23,42,.08); padding: 1.4rem; }
+.section-heading h2 { color: #0f172a; margin: 0; }
+.world-map { aspect-ratio: 2 / 1; background: linear-gradient(160deg, #dff7ff, #f0fdfa); border-radius: 1.25rem; margin-top: 1rem; overflow: hidden; position: relative; }
+.world-map svg { height: 100%; inset: 0; position: absolute; width: 100%; }
+.continent { fill: #99f6e4; stroke: #14b8a6; stroke-width: 3; }
+.country-pin { align-items: center; background: #fff; border: 2px solid #0f766e; border-radius: 999px; color: #0f172a; cursor: pointer; display: flex; gap: .45rem; padding: .35rem .65rem .35rem .35rem; position: absolute; transform: translate(-50%, -50%); box-shadow: 0 .75rem 1.5rem rgba(15,118,110,.2); }
+.country-pin span { background: #0f766e; border-radius: 999px; color: #fff; font-size: .75rem; font-weight: 900; padding: .35rem; }
+.country-pin strong { font-size: .85rem; }
+.country-pin--active, .country-pin:hover, .country-pin:focus-visible { background: #fef3c7; border-color: #f59e0b; outline: none; transform: translate(-50%, -50%) scale(1.06); }
+.cards { display: grid; gap: 1rem; margin-top: 1rem; }
+.recipe-card { box-shadow: none; display: grid; gap: .75rem; }
+.recipe-card h3 { color: #0f172a; margin: 0; }
+.recipe-card p { margin: 0; }
+button { background: #0f766e; border: 0; border-radius: 999px; color: white; cursor: pointer; font-weight: 900; padding: .8rem 1rem; }
+button:hover, button:focus-visible { background: #115e59; }
+.reader-backdrop { background: rgba(15,23,42,.56); inset: 0; position: fixed; z-index: 10; }
+.reader { background: #fffdf7; border-radius: 1.5rem; box-shadow: 0 2rem 6rem rgba(15,23,42,.35); inset: 5vh max(1rem, calc((100vw - 48rem)/2)); max-height: 90vh; overflow: auto; padding: clamp(1.5rem, 4vw, 3rem); position: fixed; z-index: 11; }
+.reader__close { float: right; font-size: 1.6rem; line-height: 1; padding: .45rem .8rem; }
+.reader h2 { color: #0f172a; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; margin: .5rem 0 1rem; }
+.reader__intro { color: #475569; font-size: 1.2rem; line-height: 1.7; }
+.reader__meta { display: grid; gap: .75rem; grid-template-columns: repeat(3, 1fr); }
+.reader__meta div { background: #ecfdf5; border-radius: 1rem; padding: 1rem; }
+dt { color: #0f766e; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
+dd { color: #0f172a; font-weight: 800; margin: .25rem 0 0; }
+.reader li { line-height: 1.8; margin: .35rem 0; }
+@media (max-width: 850px) { .layout { grid-template-columns: 1fr; } .country-pin strong { display: none; } .reader__meta { grid-template-columns: 1fr; } }

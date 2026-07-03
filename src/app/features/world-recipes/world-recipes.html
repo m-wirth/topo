@@ -1,0 +1,81 @@
+<section class="recipes-page">
+  <a class="back-link" routerLink="/">← Zurück zum Dashboard</a>
+
+  <header class="hero">
+    <p class="eyebrow">Rezeptsammlung</p>
+    <h1>Entdecke Rezepte über die Weltkarte</h1>
+    <p>Schritt 1: Wähle ein markiertes Land auf der Karte. Schritt 2: Öffne die Rezeptliste. Schritt 3: Lies das Rezept fokussiert im Lesermodus.</p>
+  </header>
+
+  <div class="layout">
+    <section class="map-card" aria-labelledby="map-title">
+      <div class="section-heading">
+        <p class="eyebrow">Schritt 1</p>
+        <h2 id="map-title">Land anklicken</h2>
+      </div>
+      <div class="world-map" role="img" aria-label="Vereinfachte Weltkarte mit auswählbaren Ländern">
+        <svg viewBox="0 0 1000 500" aria-hidden="true" focusable="false">
+          <path class="continent" d="M95 135c56-51 149-62 213-21 39 25 61 74 40 119-26 55-85 58-127 94-43 36-75 90-139 61-55-25-64-95-45-151 12-36 32-78 58-102Z" />
+          <path class="continent" d="M330 88c74-50 184-48 253-4 47 30 54 83 104 105 47 21 113 20 144 62 36 49 10 113-32 145-55 43-132 21-190 54-57 33-127 44-175-8-43-47-20-108-49-157-35-60-111-140-55-197Z" />
+          <path class="continent" d="M705 99c65-28 151 0 193 49 37 43 30 103-8 140-45 44-111 27-161 8-59-23-95-72-81-124 8-30 27-60 57-73Z" />
+          <path class="continent" d="M456 310c48-27 112-13 146 25 31 35 24 89-8 121-36 36-96 33-134 2-39-32-58-112-4-148Z" />
+        </svg>
+        @for (country of countries; track country.key) {
+          <button
+            type="button"
+            class="country-pin"
+            [class.country-pin--active]="selectedCountry().key === country.key"
+            [style.left.%]="country.position.x"
+            [style.top.%]="country.position.y"
+            (click)="selectCountry(country)"
+            [attr.aria-pressed]="selectedCountry().key === country.key"
+          >
+            <span>{{ country.mapLabel }}</span>
+            <strong>{{ country.name }}</strong>
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="recipe-list" aria-labelledby="recipes-title">
+      <div class="section-heading">
+        <p class="eyebrow">Schritt 2</p>
+        <h2 id="recipes-title">Rezepte aus {{ selectedCountry().name }}</h2>
+        <p>{{ selectedCountry().cuisineNote }}</p>
+      </div>
+      <div class="cards">
+        @for (recipe of selectedCountry().recipes; track recipe.title) {
+          <article class="recipe-card">
+            <p class="eyebrow">{{ recipe.prepTime }} · {{ recipe.difficulty }}</p>
+            <h3>{{ recipe.title }}</h3>
+            <p>{{ recipe.intro }}</p>
+            <button type="button" (click)="openRecipe(recipe)">Im Lesermodus öffnen</button>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
+
+  @if (selectedRecipe(); as recipe) {
+    <div class="reader-backdrop" role="presentation" (click)="closeReader()"></div>
+    <article class="reader" role="dialog" aria-modal="true" aria-labelledby="reader-title">
+      <button type="button" class="reader__close" (click)="closeReader()" aria-label="Lesermodus schliessen">×</button>
+      <p class="eyebrow">Schritt 3 · Lesermodus</p>
+      <h2 id="reader-title">{{ recipe.title }}</h2>
+      <p class="reader__intro">{{ recipe.intro }}</p>
+      <dl class="reader__meta">
+        <div><dt>Zeit</dt><dd>{{ recipe.prepTime }}</dd></div>
+        <div><dt>Schwierigkeit</dt><dd>{{ recipe.difficulty }}</dd></div>
+        <div><dt>Portionen</dt><dd>{{ recipe.servings }}</dd></div>
+      </dl>
+      <h3>Zutaten</h3>
+      <ul>
+        @for (ingredient of recipe.ingredients; track ingredient) { <li>{{ ingredient }}</li> }
+      </ul>
+      <h3>Zubereitung</h3>
+      <ol>
+        @for (step of recipe.steps; track step) { <li>{{ step }}</li> }
+      </ol>
+    </article>
+  }
+</section>
