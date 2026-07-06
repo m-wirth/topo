@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Resources app icon</title>
+  <desc id="desc">A balance scale on a rounded charcoal app tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="80" x2="432" y1="56" y2="456" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3f3f3f"/>
+      <stop offset="1" stop-color="#1f2937"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="92" x2="420" y1="66" y2="446" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#737373"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#tile)"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="url(#edge)" stroke-width="12" opacity=".75"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 152v190" stroke-width="32"/>
+    <path d="M118 148l138 38 138-38" stroke-width="30"/>
+    <circle cx="256" cy="156" r="38" fill="#2f2f2f" stroke-width="28"/>
+    <path d="M180 354h152a38 38 0 0 1 38 38v22H142v-22a38 38 0 0 1 38-38Z" stroke-width="24"/>
+    <path d="M104 388h304a44 44 0 0 1 44 44v28H60v-28a44 44 0 0 1 44-44Z" stroke-width="24"/>
+    <path d="M118 148 58 286h120L118 148Z" stroke-width="22"/>
+    <path d="M46 286a72 72 0 0 0 144 0Z" fill="#2f2f2f" stroke-width="22"/>
+    <path d="M394 148 334 286h120L394 148Z" stroke-width="22"/>
+    <path d="M322 286a72 72 0 0 0 144 0Z" fill="#2f2f2f" stroke-width="22"/>
+  </g>
+</svg>

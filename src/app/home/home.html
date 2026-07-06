@@ -12,6 +12,9 @@
 <nav class="tile-grid" aria-label="Dashboard Navigation">
   @for (tile of dashboardTiles; track tile.route) {
     <a class="tile" [routerLink]="tile.route">
+      @if (tile.thumbnailUrl) {
+        <img class="tile__thumbnail" [src]="tile.thumbnailUrl" [alt]="tile.thumbnailAlt ?? tile.title">
+      }
       <span class="tile__label">{{ tile.eyebrow }}</span>
       <strong>{{ tile.title }}</strong>
       <span>{{ tile.description }}</span>

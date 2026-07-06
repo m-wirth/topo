@@ -6,6 +6,8 @@ interface DashboardTile {
   readonly title: string;
   readonly description: string;
   readonly route: string;
+  readonly thumbnailUrl?: string;
+  readonly thumbnailAlt?: string;
 }
 
 @Component({
@@ -34,6 +36,8 @@ export class Home {
       title: 'Ressourcen Tracker',
       description: 'Ressourcen, Kapazitäten und Status werden später zentral nachvollziehbar.',
       route: '/resources',
+      thumbnailUrl: 'assets/icons/resources.svg',
+      thumbnailAlt: 'Resources app balance scale icon',
     },
     {
       eyebrow: 'Mapper',
