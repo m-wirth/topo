@@ -17,6 +17,15 @@
       </div>
       <div class="resource-list__tools">
         <span>{{ resources().length }} {{ resources().length === 1 ? 'resource' : 'resources' }}</span>
+        <button type="button" class="data-action" (click)="exportData()">Export</button>
+        <button type="button" class="data-action data-action--secondary" (click)="requestImport()">Import</button>
+        <input
+          #importFileInput
+          type="file"
+          class="visually-hidden"
+          accept="application/json,.json"
+          (change)="importData($event)"
+        />
         <a routerLink="/resources/new" class="icon-action icon-action--primary" aria-label="Add new resource" title="Add new resource">+</a>
       </div>
     </div>

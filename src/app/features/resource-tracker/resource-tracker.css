@@ -1051,3 +1051,28 @@ button:focus-visible {
     width: 100%;
   }
 }
+
+.data-action {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.data-action--secondary {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.data-action--secondary:hover,
+.data-action--secondary:focus-visible {
+  background: #bae6fd;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

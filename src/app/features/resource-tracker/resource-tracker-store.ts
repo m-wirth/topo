@@ -81,11 +81,7 @@ export class ResourceTrackerStore {
     }
 
     if (storedState?.weeklyComments) {
-      this.weeklyComments.set(storedState.weeklyComments);
-    }
-
-    if (storedState?.weeklyComments) {
-      this.weeklyComments.set(storedState.weeklyComments);
+      this.weeklyComments.set(this.normalizeStoredWeeklyComments(storedState.weeklyComments));
     }
 
     effect(() => {
@@ -260,6 +256,21 @@ export class ResourceTrackerStore {
     this.notification.set(null);
   }
 
+  exportState(): StoredResourceTrackerState {
+    return {
+      resources: this.resources(),
+      dailyRatings: this.dailyRatings(),
+      weeklyComments: this.weeklyComments(),
+    };
+  }
+
+  importState(state: StoredResourceTrackerState): void {
+    this.resources.set((state.resources ?? defaultResources).map((resource) => this.normalizeStoredResource(resource)));
+    this.dailyRatings.set(this.normalizeStoredDailyRatings(state.dailyRatings ?? {}));
+    this.weeklyComments.set(this.normalizeStoredWeeklyComments(state.weeklyComments ?? {}));
+    this.persistCurrentState();
+  }
+
   private normalizeStoredResource(resource: Resource): Resource {
     return {
       ...resource,
@@ -284,6 +295,12 @@ export class ResourceTrackerStore {
     });
 
     return normalizedRatings;
+  }
+
+  private normalizeStoredWeeklyComments(comments: WeeklyComments): WeeklyComments {
+    return Object.fromEntries(
+      Object.entries(comments).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+    );
   }
 
   private normalizeDraft(draft: ResourceDraft): Resource | null {
