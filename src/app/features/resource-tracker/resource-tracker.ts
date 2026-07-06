@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -12,11 +12,74 @@ import { Rating, ratingScale, ResourceTrackerStore } from './resource-tracker-st
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceTracker {
+  @ViewChild('importFileInput') private readonly importFileInput?: ElementRef<HTMLInputElement>;
+
   protected readonly ratingScale = ratingScale;
   protected readonly store = inject(ResourceTrackerStore);
   protected readonly resources = this.store.resources;
   protected readonly notification = this.store.notification;
   protected readonly week = this.store.week;
+
+  protected exportData(): void {
+    const confirmed = globalThis.confirm(
+      'Export all saved resources, ratings, and weekly comments from this browser to a file?',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const exportedAt = new Date().toISOString();
+    const exportPayload = {
+      exportedAt,
+      data: this.store.exportState(),
+    };
+    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.download = `resource-tracker-${exportedAt.slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    this.store.showNotification({ kind: 'success', text: 'Resource data exported.' });
+  }
+
+  protected requestImport(): void {
+    const confirmed = globalThis.confirm(
+      'Import saved resource tracker data from a file? This will replace the resources, ratings, and weekly comments currently saved in this browser.',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.importFileInput?.nativeElement.click();
+  }
+
+  protected importData(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    file
+      .text()
+      .then((contents) => {
+        const parsed = JSON.parse(contents) as { data?: unknown };
+        const importedState = 'data' in parsed ? parsed.data : parsed;
+
+        this.store.importState(importedState as ReturnType<ResourceTrackerStore['exportState']>);
+        this.store.showNotification({ kind: 'success', text: 'Resource data imported.' });
+      })
+      .catch(() => {
+        this.store.showNotification({ kind: 'error', text: 'Could not import that file. Please choose a valid export.' });
+      })
+      .finally(() => {
+        input.value = '';
+      });
+  }
 
   protected removeResource(resourceId: string): void {
     this.store.removeResource(resourceId);
